@@ -398,3 +398,10 @@ Ltac f_ap :=
           [ done || f_ap
           | trivial ]
   end.
+
+(** The tactic [goal_has_no_evars] fails if the goal has evar, and succeeds otherwise.  This is useful for typeclass instances which could spawn an infinite chain if the goal has evars, such as [isequiv_inverse]. *)
+Ltac goal_has_no_evars :=
+  match goal with
+    | [ |- ?G ] => has_evar G; fail 1 "Goal has evars"
+    | _ => idtac
+  end.
