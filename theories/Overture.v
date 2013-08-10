@@ -1,18 +1,14 @@
 (* -*- mode: coq; mode: visual-line -*-  *)
 
+Require Export Coq.Relations.Relation_Definitions Coq.Classes.RelationClasses.
+
 (** * Basic definitions of homotopy type theory, particularly the groupoid structure of identity types. *)
 
 (** ** Type classes *)
-Definition relation (A : Type) := A -> A -> Type.
 
-Class Reflexive {A} (R : relation A) :=
-  reflexivity : forall x : A, R x x.
-
-Class Symmetric {A} (R : relation A) :=
-  symmetry : forall x y, R x y -> R y x.
-
-Class Transitive {A} (R : relation A) :=
-  transitivity : forall x y z, R x y -> R y z -> R x z.
+(** We change the arguments for backwards compatibility with HoTT, for now.  We should probably change the proofs for compatibility with the standard library, soon. *)
+Arguments symmetry {A} {R} {_} x y _.
+Arguments transitivity {A} {R} {_} x y z _ _.
 
 Tactic Notation "etransitivity" open_constr(y) :=
   let R := match goal with |- ?R ?x ?z => constr:(R) end in
@@ -398,3 +394,49 @@ Ltac f_ap :=
           [ done || f_ap
           | trivial ]
   end.
+
+
+Require Import Setoid.
+
+Add Parametric Relation A : A (@paths A)
+    reflexivity proved by (@idpath A)
+    symmetry proved by (@inverse A)
+    transitivity proved by (@concat A)
+      as paths_rel.
+
+Add Parametric Morphism A B (f : A -> B) : f
+with signature (@paths A) ==> (@paths B) as ap_mor.
+Proof.
+  exact (@ap A B f).
+Defined.
+
+(* Toplevel input, characters 15-23:
+Anomaly: Mismatched instance and context when building universe substitution.
+Please report.
+frame @ file "toplevel/vernac.ml", line 343, characters 6-16
+raise @ file "toplevel/vernac.ml", line 335, characters 18-25
+frame @ file "toplevel/vernac.ml", line 327, characters 14-104
+raise @ file "library/states.ml", line 40, characters 45-46
+frame @ file "library/states.ml", line 38, characters 4-7
+raise @ file "toplevel/vernacentries.ml", line 1829, characters 12-13
+frame @ file "toplevel/vernacentries.ml", line 1818, characters 4-12
+frame @ file "toplevel/vernacentries.ml", line 505, characters 14-34
+raise @ file "proofs/proof.ml", line 326, characters 23-30
+frame @ file "proofs/proof.ml", line 323, characters 6-10
+frame @ file "pretyping/typing.ml", line 270, characters 10-33
+frame @ file "pretyping/typing.ml", line 224, characters 17-39
+frame @ file "pretyping/typing.ml", line 224, characters 17-39
+frame @ file "pretyping/typing.ml", line 224, characters 17-39
+frame @ file "pretyping/typing.ml", line 213, characters 4-85
+frame @ file "pretyping/typing.ml", line 30, characters 42-68
+frame @ file "kernel/environ.ml", line 255, characters 18-58
+raise @ file "lib/errors.ml", line 27, characters 18-39
+ *)
+
+Axiom foo : Type.
+Axiom bar : Type.
+Axiom baz : foo = bar.
+Goal foo = bar.
+setoid_rewrite baz.
+setoid_rewrite idpath.
+2A
