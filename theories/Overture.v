@@ -423,9 +423,11 @@ Notation "x <> y" := (x <> y :> _) (at level 70, no associativity) : type_scope.
 (** *** Pointed types *)
 
 (** A space is pointed if that space has a point. *)
-Class IsPointed (A : Type) := point : A.
-Definition pointedType := { u : Type & IsPointed u }.
+Structure IsPointed (A : Type) := { point : A }.
+Arguments Build_IsPointed {A} point.
 Arguments point A {_}.
+
+Definition pointedType := { u : Type & IsPointed u }.
 
 (** Ssreflect tactics, adapted by Robbert Krebbers *)
 Ltac done :=
