@@ -1,11 +1,12 @@
 Require Import Category.Core Functor.Core NaturalTransformation.Core.
 Require Import ExponentialLaws.Law4.Functors FunctorCategory.Core.
-Require Import Functor.Composition.Functorial.
+Require Import Functor.Composition.Functorial Functor.Composition.Core.
 Require Import UniversalProperties.
 Require Import Limits.
 Require Import KanExtensions.Core.
 Require Import Comma.Projection Comma.Core.
 Require Import InitialTerminalCategory.
+Require Import types.Unit.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -102,19 +103,39 @@ Section pointwise.
   Variable C' : PreCategory.
   Variable D  : PreCategory.
 
-  Variable p : object (C -> C').
-  Variable F : object (C -> D).
+  Variable p : object (C -> C'). (* C -> D *)
+  Variable F : object (C -> D). (* C -> Set *)
 
-  Let forgetful_functor (c' : C')
-  : Functor ((diagonal_functor' _ _ c') / !p) C
-    := (coslice_category_projection (diagonal_functor' _ _ c') !p).
-  Check forget_f
-  Hypothesis has_limits : forall c', ((diagonal_functor c') / p) → C (F)→ D.
+  (** From http://arxiv.org/pdf/1009.1166v1.pdf, David Spivak's
+      "Functorial Data Migration", Definitions 2.1.1 and 2.1.2, we are
+      actually interested in [c' / p]. *)
+
+  Local Notation forgetful_functor c' :=
+    (coslice_category_projection (c' : C') p
+     : Functor (!c' / p) C).
+
+  Context `(has_limits : forall c', @IsLimit _ _ _
+                                             (F o forgetful_functor c')
+                                             (limit_objects c')).
 
   Definition left_kan_extension_object
-  : object (pullback_along D p / !(F : object (C -> D))).
-    econstructor.
+  : object (pullback_along D p / !F).
+    simpl in *.
+    let build := match goal with
+                   | [ |- @CommaCategory.object ?A ?B ?C ?S ?T ]
+                     => constr:(@CommaCategory.Build_object A B C S T)
+                 end in
+    refine ((fun G : Functor C' D => build G tt _) _);
     simpl.
+    Focus 2.
+    pose proof (fun c' => CommaCategory.a (limit_objects c')).
+    pose proof (fun c' => CommaCategory.b (limit_objects c')).
+    pose proof (fun c' => components_of (CommaCategory.f (limit_objects c'))).
+    simpl in *.
+    match goal with |- NaturalTransformation ?F ?G => assert (forall x, morphism _ (F x) (G x)) end.
+    simpl.
+
+
 
     Print CommaCategory.object.
     assert (object (pullback_along D p)).
