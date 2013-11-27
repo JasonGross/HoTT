@@ -2,10 +2,12 @@ Require Import Category.Core Functor.Core NaturalTransformation.Core.
 Require Import ExponentialLaws.Law4.Functors FunctorCategory.Core.
 Require Import Functor.Composition.Functorial Functor.Composition.Core.
 Require Import UniversalProperties.
-Require Import Limits.
+Require Import Limits.Core.
+Require Import Limits.Functors.
 Require Import KanExtensions.Core.
 Require Import Comma.Projection Comma.Core.
-Require Import InitialTerminalCategory.
+Require Import InitialTerminalCategory NatCategory.
+Require ExponentialLaws.Law1.Functors.
 Require Import types.Unit.
 
 Set Universe Polymorphism.
@@ -118,7 +120,7 @@ Section pointwise.
                                              (F o forgetful_functor c')
                                              (limit_objects c')).
 
-  Definition left_kan_extension_object
+  Definition right_kan_extension_object
   : object (pullback_along D p / !F).
     simpl in *.
     let build := match goal with
@@ -132,6 +134,13 @@ Section pointwise.
     pose proof (fun c' => CommaCategory.b (limit_objects c')).
     pose proof (fun c' => components_of (CommaCategory.f (limit_objects c'))).
     simpl in *.
+
+    pose (@limit_functor _). _ _
+                         (fun c' : Functor 1 C' => @limit_objects (c' tt))
+                         (fun c' : Functor 1 C' => @has_limits (c' tt))).
+      Check limit_functor has_limits.
+
+
     match goal with |- NaturalTransformation ?F ?G => assert (forall x, morphism _ (F x) (G x)) end.
     simpl.
 
