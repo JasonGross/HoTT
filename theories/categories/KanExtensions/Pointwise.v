@@ -8,6 +8,7 @@ Require Import KanExtensions.Core.
 Require Import Comma.Projection Comma.Core.
 Require Import InitialTerminalCategory NatCategory.
 Require ExponentialLaws.Law1.Functors.
+Require Import Cat.Core.
 Require Import types.Unit.
 
 Set Universe Polymorphism.
@@ -116,9 +117,14 @@ Section pointwise.
     (coslice_category_projection (c' : C') p
      : Functor (!c' / p) C).
 
-  Context `(has_limits : forall c', @IsLimit _ _ _
+  (*Context `(has_limits : forall c', @IsLimit _ _ _
                                              (F o forgetful_functor c')
-                                             (limit_objects c')).
+                                             (limit_objects c')).*)
+
+  (* TODO: We want Cat / D, not (!c' / p -> D), and we want to take coslice_category_projection to be a functor from C' to Cat / C, and then compose with composition with F, to get to Cat / D *)
+  Context `(has_limits : forall c' (F : Functor (!c' / p) D), @IsLimit _ _ _
+                                                                       F
+                                                                       (limit_objects c' F)).
 
   Definition right_kan_extension_object
   : object (pullback_along D p / !F).
@@ -130,13 +136,15 @@ Section pointwise.
     refine ((fun G : Functor C' D => build G tt _) _);
     simpl.
     Focus 2.
+    pose proof (fun c' => Law1.Functors.functor _ o limit_functor (@has_limits c'))%functor.
+    pose .
     pose proof (fun c' => CommaCategory.a (limit_objects c')).
     pose proof (fun c' => CommaCategory.b (limit_objects c')).
     pose proof (fun c' => components_of (CommaCategory.f (limit_objects c'))).
     simpl in *.
 
-    pose (@limit_functor _). _ _
-                         (fun c' : Functor 1 C' => @limit_objects (c' tt))
+    pose (limit_functor (@has_limits c')).
+4                        (fun c' : Functor 1 C' => @limit_objects (c' tt))
                          (fun c' : Functor 1 C' => @has_limits (c' tt))).
       Check limit_functor has_limits.
 
