@@ -82,6 +82,33 @@ Section comma.
     rewrite ?CommaCategory.ap_a_path_object', ?CommaCategory.ap_b_path_object';
     try reflexivity.
 
+  Lemma comma_category_projection_functor_composition_of_helper
+  : forall
+      (T : Type) (f0 f2 : T) (T0 : Type) (f f1 : T0)
+      (T1 : T0 -> T -> Type) (x x0 : T1 f f0)
+      (fg x'' : T1 f f0 -> T1 f1 f2)
+      (T2 : forall (S : T0) (T2 : T),
+              T1 S T2 -> T1 S T2 -> Type)
+      (x1 : T2 f f0 x x0) (m1 : T2 f1 f2 (fg x) (fg x0))
+      (m0 : forall s0 d0 : T1 f f0,
+              T2 f f0 s0 d0 -> T2 f1 f2 (x'' s0) (x'' d0))
+      (x2 : forall x2 : T1 f f0, x'' x2 = fg x2),
+      transport (fun y : T1 f1 f2 => T2 f1 f2 (fg x) y)
+                (x2 x0)
+                (transport (fun y : T1 f1 f2 => T2 f1 f2 y (x'' x0)) (x2 x) (m0 x x0 x1)) =
+      m1
+      -> transport
+           (fun GO : T1 f f0 -> T1 f1 f2 =>
+              forall s d : T1 f f0,
+                T2 f f0 s d -> T2 f1 f2 (GO s) (GO d))
+           (path_forall x'' fg x2) m0 x x0 x1 = m1.
+  Proof.
+    intros.
+    rewrite !transport_forall_constant.
+    transport_path_forall_hammer.
+    assumption.
+  Qed.
+
   Lemma comma_category_projection_functor_identity_of x
   : comma_category_projection_functor_morphism_of (Category.Core.identity x)
     = 1.
@@ -89,7 +116,9 @@ Section comma.
     apply CommaCategory.path_morphism; simpl; [ | reflexivity ].
     path_functor.
     exists (path_forall _ _ (comma_category_induced_functor_object_of_identity _)).
-    abstract comma_laws_t.
+    Time (repeat (apply path_forall; intro)).
+    simpl.
+    admit. (*abstract comma_laws_t.*)
   Qed.
 
   Lemma comma_category_projection_functor_composition_of s d d' m m'
@@ -100,8 +129,198 @@ Section comma.
   Proof.
     apply CommaCategory.path_morphism; simpl; [ | reflexivity ].
     path_functor.
-    simpl.
     exists (path_forall _ _ (comma_category_induced_functor_object_of_compose m' m)).
+    Time (repeat (apply path_forall; intro)).
+    Time destruct_head Datatypes.prod.
+    Time simpl in *.
+    Time refine (@comma_category_projection_functor_composition_of_helper _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    Time apply CommaCategory.path_morphism.
+    Time simpl.
+    generalize (@CommaCategory.g A B C); intro.
+    destruct s, d', m, m'; simpl in *.
+    unfold comma_category_induced_functor_object_of_compose.
+    match goal with
+      | [ |- appcontext[transport ?a ?b ?c] ]
+        => match c with
+             | appcontext[transport] => fail 1
+             | _ => generalize c; intro
+           end
+    end.
+
+    Set Printing Implicit.
+    match goal with
+      | [
+    match goal with
+    match goal with
+      | |- appcontext[comma_category_induced_functor_morphism_of (?a, ?b)] => generalize dependent (a, b)
+    end.
+        intros.
+        generalize (comma_category_induced_functor_morphism_of p0).
+        intro.
+        generalize (comma_category_induced_functor_morphism_of m'
+     (comma_category_induced_functor_morphism_of m x1)).
+        intro.
+        revert p1.
+
+
+    generalize dependent (@CommaCategory.morphism A B C).
+
+
+    Time repeat match goal with
+             | [ |- appcontext[?f _ _ _ _ _ _ _ (transport ?P ?p ?z)] ]
+               => simpl rewrite (@ap_transport
+                                   _ P _ _ _ p
+                                   (fun _ => f _ _ _ _ _ _ _)
+                                   z)
+             | [ |- appcontext[transport (fun y => ?f (?fa _ _ _ _ _ y) ?x)] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f y x) (fa _ _ _ _ _))
+             | [ |- appcontext[transport (fun y => ?f ?x (?fa _ _ _ _ _ y))] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f x y) (fa _ _ _ _ _))
+           end.
+    unfold comma_category_induced_functor_object_of_identity;
+    unfold comma_category_induced_functor_object_of_compose;
+    simpl.
+    Time rewrite ?CommaCategory.ap_a_path_object', ?CommaCategory.ap_b_path_object'.
+    Time reflexivity.
+
+
+
+
+    pose @transport_forall_constant.
+    let H := lazymatch goal with |- appcontext[path_forall ?x ?y ?z] => constr:(z) end in
+        generalize H.
+        simpl.
+        match goal with
+          | |- appcontext[comma_category_induced_functor_morphism_of (?a, ?b)] => generalize (a, b)
+        end.
+        intros.
+        generalize (comma_category_induced_functor_morphism_of p0).
+        intro.
+        generalize (comma_category_induced_functor_morphism_of m'
+     (comma_category_induced_functor_morphism_of m x1)).
+        intro.
+        revert p1.
+        lazymatch goal with
+          | |- forall x0 : forall x2, @?a x2 = ?f (?g x2), @?h x0
+            => let fg := fresh "fg" in
+               set (fg := fun x' => f (g x'));
+                 change (forall x0 : forall x2, a x2 = fg x2, h x0);
+                 repeat match goal with
+                          | [ |- appcontext[f (g ?x)] ] =>
+                            change (f (g x)) with (fg x)
+                          | [ H : appcontext[f (g ?x)] |- _ ] =>
+                            change (f (g x)) with (fg x) in H
+                        end
+        end.
+        cbv beta.
+        lazymatch goal with
+          | [ |- appcontext[path_forall ?x ?y] ]
+            => change y with fg
+        end.
+        generalize dependent fg.
+        intros.
+        generalize dependent (comma_category_induced_functor_object_of p0).
+        intro x''.
+        simpl in *.
+        generalize dependent (@CommaCategory.morphism A B C).
+        intros.
+        simpl in *.
+        generalize dependent (@CommaCategory.object A B C).
+        intros.
+        simpl in *.
+        clear.
+        destruct s, d'.
+        simpl in *.
+        generalize dependent (Functor A C).
+        generalize dependent (Functor B C).
+        clear.
+        intros.
+        simpl in *.
+        repeat match goal with
+                 | [ H : _ |- _ ] => revert H
+               end.
+        intro.
+        rewrite transport_forall_constant.
+        rewrite transport_forall_constant.
+        rewrite transport_forall_constant.
+        transport_path_forall_hammer.
+
+
+
+        set (T' := fun xy => T (Datatypes.fst xy) (Datatypes.snd xy)).
+        set (T0' := fun xy => T0 (Datatypes.fst xy) (Datatypes.snd xy) : T' xy -> T' xy -> Type).
+        repeat match goal with
+                 | [ |- appcontext[T (Datatypes.fst ?x) (Datatypes.snd ?y)] ]
+                   => progress change (T (Datatypes.fst x) (Datatypes.snd y)) with (T' x)
+                 | [ |- appcontext[T0 (Datatypes.fst ?x) (Datatypes.snd ?y)] ]
+                   => progress change (T0 (Datatypes.fst x) (Datatypes.snd y)) with (T0' x)
+                 | [ H : appcontext[T (Datatypes.fst ?x) (Datatypes.snd ?y)] |- _ ]
+                   => progress change (T (Datatypes.fst x) (Datatypes.snd y)) with (T' x) in H
+                 | [ H : appcontext[T0 (Datatypes.fst ?x) (Datatypes.snd ?y)] |- _ ]
+                   => progress change (T0 (Datatypes.fst x) (Datatypes.snd y)) with (T0' x) in H
+                 | _ => clearbody T0'
+                 | _ => clearbody T'
+               end.
+
+        simpl in *.
+
+
+
+
+
+        generalize dependent T0'.
+
+
+
+
+        change (forall xy, T (Datatypes.fst xy) (Datatypes.snd xy) -> T (Datatypes.fst xy) (Datatypes.snd xy) -> Type) with (forall xy, T' xy -> T' xy -> Type).
+
+
+        clearbody T'.
+        cleargeneralize dependent (T f f0).
+
+
+
+
+ generalize ((fun x2 : CommaCategory.object (Datatypes.fst s) (Datatypes.snd s) =>
+         comma_category_induced_functor_object_of m'
+           (comma_category_induced_functor_object_of m x2)))
+        intro.
+        match goal with
+          |
+        lazymatch goal with
+          | |- appcontext[
+    lazymatch goal with
+    |- appcontext[path_forall ?x ?y] => generalize dependent y
+        end.
+        generalize H.
+           (Core.compose (Datatypes.fst m) (Datatypes.fst m'),
+           Core.compose (Datatypes.snd m') (Datatypes.snd m)))).
+
+    Time rewrite !transport_forall_constant.
+    Time transport_path_forall_hammer.
+    Time simpl.
+    Time destruct_head Datatypes.prod.
+    Time simpl in *.
+    Time apply CommaCategory.path_morphism.
+    Time simpl.
+    Time repeat match goal with
+             | [ |- appcontext[?f _ _ _ _ _ _ _ (transport ?P ?p ?z)] ]
+               => simpl rewrite (@ap_transport
+                                   _ P _ _ _ p
+                                   (fun _ => f _ _ _ _ _ _ _)
+                                   z)
+             | [ |- appcontext[transport (fun y => ?f (?fa _ _ _ _ _ y) ?x)] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f y x) (fa _ _ _ _ _))
+             | [ |- appcontext[transport (fun y => ?f ?x (?fa _ _ _ _ _ y))] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f x y) (fa _ _ _ _ _))
+           end.
+    unfold comma_category_induced_functor_object_of_identity;
+    unfold comma_category_induced_functor_object_of_compose;
+    simpl.
+    Time rewrite ?CommaCategory.ap_a_path_object', ?CommaCategory.ap_b_path_object'.
+    Time reflexivity.
+
     abstract comma_laws_t.
   Qed.
 
