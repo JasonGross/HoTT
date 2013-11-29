@@ -146,13 +146,14 @@ Section comma.
              | _ => generalize c; intro
            end
     end.
-    pose CommaCategory.ap_a_path_object'.
+    intros.
     repeat match goal with
              | [ |- appcontext[CommaCategory.path_object' ?x ?y ?Ha ?Hb (?H ?f)] ]
                => generalize (CommaCategory.ap_a_path_object' x y Ha Hb (H f));
                  generalize (CommaCategory.ap_b_path_object' x y Ha Hb (H f));
                  generalize (CommaCategory.path_object' x y Ha Hb (H f))
            end.
+    clear.
     intros; simpl in *.
     generalize dependent (@CommaCategory.morphism A B C).
     intros.
@@ -163,7 +164,33 @@ Section comma.
     intros; simpl in *.
     generalize dependent (@CommaCategory.f A B C).
 
-generalize dependent (@comma_category_induced_functor_object_of H A B C).
+    intros.
+    simpl in *.
+
+    repeat match goal with
+             | [ H : _ |- _ ] => revert H
+           end.
+
+    Time repeat match goal with
+             | [ |- appcontext[?f _ _ (transport ?P ?p ?z)] ]
+               => simpl rewrite (@ap_transport
+                                   _ P _ _ _ p
+                                   (fun _ => f _ _)
+                                   z)
+             | [ |- appcontext[transport (fun y => ?f (?fa _ _ y) ?x)] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f y x) (fa _ _))
+             | [ |- appcontext[transport (fun y => ?f ?x (?fa _ _ y))] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f x y) (fa _ _))
+           end.
+    rewrite_hyp.
+    simpl.
+
+
+generalize dependent (@comma_category_induced_functor_object_of H A B C (f, f0) (f1, f2) p0 x).
+
+generalize dependent (@comma_category_induced_functor_object_of H A B C (f, f0) d p x).
+
+
 generalize dependent (@CommaCategory.a A B C).
     generalize dependent (@CommaCategory.b A B C).
     generalize dependent (@CommaCategory.object A B C).
