@@ -5,7 +5,7 @@ Require Import UniversalProperties.
 Require Import Limits.Core.
 Require Import Limits.Functors.
 Require Import KanExtensions.Core.
-Require Import Comma.Projection Comma.Core.
+Require Import Comma.ProjectionFunctors Comma.Projection Comma.InducedFunctors Comma.Core.
 Require Import InitialTerminalCategory NatCategory.
 Require ExponentialLaws.Law1.Functors.
 Require Import Cat.Core.
@@ -116,6 +116,11 @@ Section pointwise.
   Local Notation forgetful_functor c' :=
     (coslice_category_projection (c' : C') p
      : Functor (!c' / p) C).
+
+  Require Import Category.Dual Category.Prod.
+  Goal True.
+  pose (fun P HF P1C PC PD P_comma => @cat_over_induced_functor _ P HF (C; PC) (D; PD) F o @coslice_category_projection_functor _ P HF C C' P1C PC P_comma p).
+
 
   (*Context `(has_limits : forall c', @IsLimit _ _ _
                                              (F o forgetful_functor c')
