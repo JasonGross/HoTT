@@ -118,9 +118,20 @@ Section pointwise.
      : Functor (!c' / p) C).
 
   Require Import Category.Dual Category.Prod.
-  Goal True.
-  pose (fun P HF P1C PC PD P_comma => @cat_over_induced_functor _ P HF (C; PC) (D; PD) F o @coslice_category_projection_functor _ P HF C C' P1C PC P_comma p).
 
+  Variable P : PreCategory -> Type.
+  Hypothesis HF : forall C D, P C -> P D -> IsHSet (Functor C D).
+  Hypothesis PC1 : P (C * 1).
+  Hypothesis PC : P C.
+  Hypothesis PD : P D.
+  Hypothesis P_comma : forall (S : Functor C C') (T : Functor 1 C'), P (S / T).
+
+  Local Notation Cat := (@sub_pre_cat _ P HF).
+
+  Let forgetful_functor_composed_F
+    := (((@cat_over_induced_functor _ P HF (C; PC) (D; PD) F)
+           o (@coslice_category_projection_functor _ P HF C C' PC1 PC P_comma p))
+        : Functor C' (Cat / ((D; PD) : Cat))).
 
   (*Context `(has_limits : forall c', @IsLimit _ _ _
                                              (F o forgetful_functor c')
@@ -141,6 +152,9 @@ Section pointwise.
     refine ((fun G : Functor C' D => build G tt _) _);
     simpl.
     Focus 2.
+    refine (_ o forgetful_functor_composed_F).
+
+
     pose proof (fun c' => Law1.Functors.functor _ o limit_functor (@has_limits c'))%functor.
     pose .
     pose proof (fun c' => CommaCategory.a (limit_objects c')).
