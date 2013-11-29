@@ -146,12 +146,61 @@ Section comma.
              | _ => generalize c; intro
            end
     end.
+    pose CommaCategory.ap_a_path_object'.
+    repeat match goal with
+             | [ |- appcontext[CommaCategory.path_object' ?x ?y ?Ha ?Hb (?H ?f)] ]
+               => generalize (CommaCategory.ap_a_path_object' x y Ha Hb (H f));
+                 generalize (CommaCategory.ap_b_path_object' x y Ha Hb (H f));
+                 generalize (CommaCategory.path_object' x y Ha Hb (H f))
+           end.
+    intros; simpl in *.
+    generalize dependent (@CommaCategory.morphism A B C).
+    intros.
+    simpl in *.
+    repeat match goal with
+             | |- appcontext[comma_category_induced_functor_object_of (?a, ?b)] => generalize dependent (a, b)
+           end.
+    intros; simpl in *.
+    generalize dependent (@CommaCategory.f A B C).
+
+generalize dependent (@comma_category_induced_functor_object_of H A B C).
+generalize dependent (@CommaCategory.a A B C).
+    generalize dependent (@CommaCategory.b A B C).
+    generalize dependent (@CommaCategory.object A B C).
+    progress repeat match goal with
+                      | [ |- appcontext[@comma_category_induced_functor_object_of ?H ?A ?B ?C ?x ?y] ]
+                        => generalize dependent (@comma_category_induced_functor_object_of H A B C x y)
+                    end.
+    Set Printing Implicit.
+    progress repeat match goal with
+                      | [ |- appcontext[@comma_category_induced_functor_object_of ?H ?A ?B ?C ?x ?y] ]
+                        => generalize dependent (@comma_category_induced_functor_object_of H A B C x y)
+                    end.
+
+    generalize dependent (comma_category_induced_functor_object_of p2
+                                                                   (comma_category_induced_functor_object_of p0 x0)).
+    generalize dependent (@CommaCategory.f A B C).
+    generalize dependent (@CommaCategory.a A B C).
+    generalize dependent (@CommaCategory.b A B C).
+    generalize dependent (@CommaCategory.object A B C).
+
+
+
+    lazymatch goal with
+      | [ |- appcontext[@comma_category_induced_functor_object_of ?H ?A ?B ?C ?x ?y] ]
+        => generalize dependent (@comma_category_induced_functor_object_of H A B C x y)
+    end.
+
+    lazymatch goal with
+             | [ |- appcontext[CommaCategory.path_object' (?f ?x) (?g ?y)] ]
+               => generalize dependent (f x); generalize dependent (g y)
+           end.
 
     Set Printing Implicit.
     match goal with
       | [
     match goal with
-    match goal with
+        match goal with
       | |- appcontext[comma_category_induced_functor_morphism_of (?a, ?b)] => generalize dependent (a, b)
     end.
         intros.
