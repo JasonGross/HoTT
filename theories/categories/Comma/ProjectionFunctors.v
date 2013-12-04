@@ -82,6 +82,118 @@ Section comma.
     rewrite ?CommaCategory.ap_a_path_object', ?CommaCategory.ap_b_path_object';
     try reflexivity.
 
+  Lemma comma_category_projection_functor_identity_of_helper
+  : forall (X : Functor A C) (X0 : Functor B C)
+           (X1 : Functor A C -> Functor B C -> Type) (X2 X3 : X1 X X0)
+           (X4 : X1 X X0 -> X1 X X0) (X5 : forall x : X1 X X0, X4 x = x)
+           (X6 : forall (S : Functor A C) (T : Functor B C),
+                   X1 S T -> X1 S T -> Type) (X7 : X6 X X0 X2 X3)
+           (X8 : forall s0 d0 : X1 X X0, X6 X X0 s0 d0 -> X6 X X0 (X4 s0) (X4 d0)),
+      transport (fun y : X1 X X0 => X6 X X0 X2 y) (X5 X3)
+                (transport (fun y : X1 X X0 => X6 X X0 y (X4 X3)) (X5 X2) (X8 X2 X3 X7)) =
+      X7
+      -> transport
+           (fun GO : X1 X X0 -> X1 X X0 =>
+              forall s d : X1 X X0, X6 X X0 s d -> X6 X X0 (GO s) (GO d))
+           (path_forall X4 idmap X5) X8 X2 X3 X7 = X7.
+  Proof.
+    intros.
+    rewrite !transport_forall_constant.
+    transport_path_forall_hammer.
+    assumption.
+  Qed.
+
+  Lemma comma_category_projection_functor_identity_of_helper_2
+  : forall (X : Functor A C) (X0 : Functor B C)
+           (X1 X2 : @CommaCategory.object A B C X X0)
+           (X3 : forall (S : Functor A C) (T : Functor B C),
+                   @CommaCategory.object A B C S T ->
+                   @CommaCategory.object A B C S T -> Type)
+           (X4 : X3 X X0 X1 X2)
+           (X5 : forall (S : Functor A C) (T : Functor B C)
+                        (abf a'b'f' : @CommaCategory.object A B C S T),
+                   X3 S T abf a'b'f' ->
+                   morphism B (@CommaCategory.b A B C S T abf)
+                            (@CommaCategory.b A B C S T a'b'f'))
+           (X6 : forall (S : Functor A C) (T : Functor B C)
+                        (abf a'b'f' : @CommaCategory.object A B C S T),
+                   X3 S T abf a'b'f' ->
+                   morphism A (@CommaCategory.a A B C S T abf)
+                            (@CommaCategory.a A B C S T a'b'f')),
+      (forall (S : Functor A C) (T : Functor B C)
+              (abf a'b'f' : @CommaCategory.object A B C S T)
+              (gh g'h' : X3 S T abf a'b'f'),
+         X6 S T abf a'b'f' gh = X6 S T abf a'b'f' g'h' ->
+         X5 S T abf a'b'f' gh = X5 S T abf a'b'f' g'h' -> gh = g'h') ->
+      forall (X8 : @Core.NaturalTransformation A C X X)
+             (X9 : @Core.NaturalTransformation B C X0 X0)
+             (X10 : @comma_category_induced_functor_object_of H A B C
+                                                              (X, X0) (X, X0) (X8, X9) X1 = X1),
+        @ap (@CommaCategory.object A B C X X0) B (@CommaCategory.b A B C X X0)
+            (@comma_category_induced_functor_object_of H A B C
+                                                       (X, X0) (X, X0) (X8, X9) X1) X1 X10 = 1%path ->
+        @ap (@CommaCategory.object A B C X X0) A (@CommaCategory.a A B C X X0)
+            (@comma_category_induced_functor_object_of H A B C
+                                                       (X, X0) (X, X0) (X8, X9) X1) X1 X10 = 1%path ->
+        forall
+          X13 : @comma_category_induced_functor_object_of H A B C
+                                                          (X, X0) (X, X0) (X8, X9) X2 = X2,
+          @ap (@CommaCategory.object A B C X X0) B (@CommaCategory.b A B C X X0)
+              (@comma_category_induced_functor_object_of H A B C
+                                                         (X, X0) (X, X0) (X8, X9) X2) X2 X13 = 1%path ->
+          @ap (@CommaCategory.object A B C X X0) A (@CommaCategory.a A B C X X0)
+              (@comma_category_induced_functor_object_of H A B C
+                                                         (X, X0) (X, X0) (X8, X9) X2) X2 X13 = 1%path ->
+          forall
+            X16 : X3 X X0
+                     (@comma_category_induced_functor_object_of H A B C
+                                                                (X, X0) (X, X0) (X8, X9) X1)
+                     (@comma_category_induced_functor_object_of H A B C
+                                                                (X, X0) (X, X0) (X8, X9) X2),
+            (forall (S : Functor A C) (T : Functor B C)
+                    (x : @CommaCategory.object A B C S T),
+               morphism C (S (@CommaCategory.a A B C S T x))
+                        (T (@CommaCategory.b A B C S T x))) ->
+            X6 X X0
+               (@comma_category_induced_functor_object_of H A B C
+                                                          (X, X0) (X, X0) (X8, X9) X1)
+               (@comma_category_induced_functor_object_of H A B C
+                                                          (X, X0) (X, X0) (X8, X9) X2) X16 = X6 X X0 X1 X2 X4
+            -> X5 X X0
+                  (@comma_category_induced_functor_object_of H A B C
+                                                             (X, X0) (X, X0) (X8, X9) X1)
+                  (@comma_category_induced_functor_object_of H A B C
+                                                             (X, X0) (X, X0) (X8, X9) X2) X16 = X5 X X0 X1 X2 X4
+            -> @transport (@CommaCategory.object A B C X X0)
+                          (fun y : @CommaCategory.object A B C X X0 => X3 X X0 X1 y)
+                          (@comma_category_induced_functor_object_of H A B C
+                                                                     (X, X0) (X, X0) (X8, X9) X2) X2 X13
+                          (@transport (@CommaCategory.object A B C X X0)
+                                      (fun y : @CommaCategory.object A B C X X0 =>
+                                         X3 X X0 y
+                                            (@comma_category_induced_functor_object_of H A B C
+                                                                                       (X, X0) (X, X0) (X8, X9) X2))
+                                      (@comma_category_induced_functor_object_of H A B C
+                                                                                 (X, X0) (X, X0) (X8, X9) X1) X1 X10 X16) = X4.
+  Proof.
+    intros.
+    apply_hyp;
+    repeat match goal with
+             | [ |- appcontext[?f _ _ _ _ (transport ?P ?p ?z)] ]
+               => simpl rewrite (@ap_transport
+                                   _ P _ _ _ p
+                                   (fun _ => f _ _ _ _)
+                                   z)
+             | [ |- appcontext[transport (fun y => ?f (?fa _ _ y) ?x)] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f y x) (fa _ _))
+             | [ |- appcontext[transport (fun y => ?f ?x (?fa _ _ y))] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f x y) (fa _ _))
+           end;
+    rewrite_hyp;
+    simpl in *;
+    reflexivity.
+  Qed.
+
   Lemma comma_category_projection_functor_composition_of_helper
   : forall
       (T : Type) (f0 f2 : T) (T0 : Type) (f f1 : T0)
@@ -117,7 +229,108 @@ Section comma.
     path_functor.
     exists (path_forall _ _ (comma_category_induced_functor_object_of_identity _)).
     Time (repeat (apply path_forall; intro)).
-    simpl.
+    Time refine (comma_category_projection_functor_identity_of_helper _ _ _ _ _ _ _ _ _ _).
+    unfold comma_category_induced_functor_object_of_identity.
+    (*Time (refine (comma_category_projection_functor_identity_of_helper_2 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
+    exact (@CommaCategory.path_morphism A B C).
+    exact (CommaCategory.ap_b_path_object' _ _ _ _ _).
+    exact (CommaCategory.ap_a_path_object' _ _ _ _ _).
+    exact (CommaCategory.ap_b_path_object' _ _ _ _ _).
+    exact (CommaCategory.ap_a_path_object' _ _ _ _ _).
+    Focus 2.
+    reflexivity.
+    Focus 2.
+    reflexivity.
+    simpl in *.
+
+    match goal with
+      | [ |- appcontext[transport ?a ?b ?c] ]
+        => match c with
+             | appcontext[transport] => fail 1
+             | _ => generalize c; intro
+           end
+    end.
+    intros.
+    repeat match goal with
+             | [ |- appcontext[CommaCategory.path_object' ?x ?y ?Ha ?Hb (?H ?f)] ]
+               => generalize (CommaCategory.ap_a_path_object' x y Ha Hb (H f));
+                 generalize (CommaCategory.ap_b_path_object' x y Ha Hb (H f));
+                 generalize (CommaCategory.path_object' x y Ha Hb (H f))
+           end.
+    clear.
+    intros; simpl in *.
+    generalize (@CommaCategory.path_morphism A B C).
+    generalize (@CommaCategory.g A B C).
+    generalize (@CommaCategory.h A B C).
+    generalize dependent (@CommaCategory.morphism A B C).
+    intros.
+    simpl in *.
+    repeat match goal with
+             | |- appcontext[comma_category_induced_functor_object_of (?a, ?b)] => generalize dependent (a, b)
+           end.
+    intros; simpl in *.
+    generalize dependent (@CommaCategory.f A B C).
+    destruct x.
+    intros.
+
+    simpl in *.
+    destruct_head @Datatypes.prod.
+
+    repeat match goal with
+             | [ H : _ |- _ ] => revert H
+           end.
+    intros ? A B C.
+    repeat (let X := fresh "X" in intro X).
+    repeat match goal with
+             | [ H : _ |- _ ] => revert H
+           end.
+    intros ? A B C.
+
+    Set Printing Implicit.
+
+
+    unfold comma_category_induced_functor_object_of in *.
+    repeat match goal with
+             | [ |- appcontext[{| CommaCategory.f := (?f ?x) |}] ]
+               => generalize dependent (f x)
+           end.
+
+    lazymatch goal with
+      | [ |- appcontext[@comma_category_induced_functor_object_of H A B C ?x ?y ?z ?w] ]
+        => generalize dependent (@comma_category_induced_functor_object_of H A B C x y z w)
+    end.
+    lazymatch goal with
+      | [ |- appcontext[transport ?x ?y ?z] ] => generalize z
+    end.
+    intros.
+    simpl in *.
+    lazymatch goal with
+      | [ |- appcontext[path_forall ?x ?y ?z] ] => generalize dependent x
+    end.
+    intros.
+    clear.
+    generalize dependent (@CommaCategory.morphism A B C).
+    simpl in *.
+    generalize dependent (@CommaCategory.object A B C).
+    intros.
+    simpl in *.
+    destruct x.
+    simpl in *.
+    clear.
+    repeat match goal with
+             | [ H : _ |- _ ] => revert H
+           end.
+    intros ? A B C.
+    repeat (let X := fresh "X" in intro X).
+    repeat match goal with
+             | [ H : _ |- _ ] => revert H
+           end.
+    intros ? A B C.
+
+    rewrite ?transport_forall_constant.
+    transport_path_forall_hammer.
+    unfold comma_category_induced_functor_object_of_identity.
+    simpl in *.
     admit. (*abstract comma_laws_t.*)
   Qed.
 
@@ -170,6 +383,133 @@ Section comma.
     repeat match goal with
              | [ H : _ |- _ ] => revert H
            end.
+
+    simpl in *.
+
+    intros ? A B C.
+
+    Set Printing Implicit.
+
+
+    Focus 2.
+    assert (   forall (X : Functor A C) (X0 : Functor B C)
+     (X1 : Functor A C * Functor B C) (X2 : Functor A C)
+     (X3 : Functor B C),
+   @Core.NaturalTransformation A C
+     (@Datatypes.fst (Functor A C) (Functor B C) X1) X ->
+   @Core.NaturalTransformation B C X0
+     (@Datatypes.snd (Functor A C) (Functor B C) X1) ->
+   @Core.NaturalTransformation A C X2
+     (@Datatypes.fst (Functor A C) (Functor B C) X1) ->
+   @Core.NaturalTransformation B C
+     (@Datatypes.snd (Functor A C) (Functor B C) X1) X3 ->
+   forall (X8 X9 : @CommaCategory.object A B C X X0)
+     (X10 : forall (S : Functor A C) (T : Functor B C),
+            @CommaCategory.object A B C S T ->
+            @CommaCategory.object A B C S T -> Type)
+     (X11 : X10 X X0 X8 X9)
+     (X12 : forall (S : Functor A C) (T : Functor B C)
+              (abf a'b'f' : @CommaCategory.object A B C S T),
+            X10 S T abf a'b'f' ->
+            morphism A (@CommaCategory.a A B C S T abf)
+              (@CommaCategory.a A B C S T a'b'f'))
+     (X13 : @Core.NaturalTransformation A C
+              (@Datatypes.fst (Functor A C) (Functor B C) X1) X *
+            @Core.NaturalTransformation B C X0
+              (@Datatypes.snd (Functor A C) (Functor B C) X1))
+     (X14 : @Core.NaturalTransformation A C X2 X *
+            @Core.NaturalTransformation B C X0 X3)
+     (X15 : X10 X2 X3
+              (@comma_category_induced_functor_object_of H A B C
+                 (X, X0) (X2, X3) X14 X8)
+              (@comma_category_induced_functor_object_of H A B C
+                 (X, X0) (X2, X3) X14 X9))
+     (X16 : @Core.NaturalTransformation A C X2
+              (@Datatypes.fst (Functor A C) (Functor B C) X1) *
+            @Core.NaturalTransformation B C
+              (@Datatypes.snd (Functor A C) (Functor B C) X1) X3)
+     (X17 : @comma_category_induced_functor_object_of H A B C
+              (X, X0) (X2, X3) X14 X8 =
+            @comma_category_induced_functor_object_of H A B C X1
+              (X2, X3) X16
+              (@comma_category_induced_functor_object_of H A B C
+                 (X, X0) X1 X13 X8)),
+   @ap (@CommaCategory.object A B C X2 X3) B (@CommaCategory.b A B C X2 X3)
+     (@comma_category_induced_functor_object_of H A B C
+        (X, X0) (X2, X3) X14 X8)
+     (@comma_category_induced_functor_object_of H A B C X1
+        (X2, X3) X16
+        (@comma_category_induced_functor_object_of H A B C (X, X0) X1 X13 X8))
+     X17 = 1%path ->
+   @ap (@CommaCategory.object A B C X2 X3) A (@CommaCategory.a A B C X2 X3)
+     (@comma_category_induced_functor_object_of H A B C
+        (X, X0) (X2, X3) X14 X8)
+     (@comma_category_induced_functor_object_of H A B C X1
+        (X2, X3) X16
+        (@comma_category_induced_functor_object_of H A B C (X, X0) X1 X13 X8))
+     X17 = 1%path ->
+   forall
+     X20 : @comma_category_induced_functor_object_of H A B C
+             (X, X0) (X2, X3) X14 X9 =
+           @comma_category_induced_functor_object_of H A B C X1
+             (X2, X3) X16
+             (@comma_category_induced_functor_object_of H A B C
+                (X, X0) X1 X13 X9),
+   @ap (@CommaCategory.object A B C X2 X3) B (@CommaCategory.b A B C X2 X3)
+     (@comma_category_induced_functor_object_of H A B C
+        (X, X0) (X2, X3) X14 X9)
+     (@comma_category_induced_functor_object_of H A B C X1
+        (X2, X3) X16
+        (@comma_category_induced_functor_object_of H A B C (X, X0) X1 X13 X9))
+     X20 = 1%path ->
+   @ap (@CommaCategory.object A B C X2 X3) A (@CommaCategory.a A B C X2 X3)
+     (@comma_category_induced_functor_object_of H A B C
+        (X, X0) (X2, X3) X14 X9)
+     (@comma_category_induced_functor_object_of H A B C X1
+        (X2, X3) X16
+        (@comma_category_induced_functor_object_of H A B C (X, X0) X1 X13 X9))
+     X20 = 1%path ->
+   (forall (S : Functor A C) (T : Functor B C)
+      (x : @CommaCategory.object A B C S T),
+    morphism C (S (@CommaCategory.a A B C S T x))
+      (T (@CommaCategory.b A B C S T x))) ->
+   X12 X2 X3
+     (@comma_category_induced_functor_object_of H A B C X1
+        (X2, X3) X16
+        (@comma_category_induced_functor_object_of H A B C (X, X0) X1 X13 X8))
+     (@comma_category_induced_functor_object_of H A B C X1
+        (X2, X3) X16
+        (@comma_category_induced_functor_object_of H A B C (X, X0) X1 X13 X9))
+     (@transport (@CommaCategory.object A B C X2 X3)
+        (fun y : @CommaCategory.object A B C X2 X3 =>
+         X10 X2 X3
+           (@comma_category_induced_functor_object_of H A B C X1
+              (X2, X3) X16
+              (@comma_category_induced_functor_object_of H A B C
+                 (X, X0) X1 X13 X8)) y)
+        (@comma_category_induced_functor_object_of H A B C
+           (X, X0) (X2, X3) X14 X9)
+        (@comma_category_induced_functor_object_of H A B C X1
+           (X2, X3) X16
+           (@comma_category_induced_functor_object_of H A B C
+              (X, X0) X1 X13 X9)) X20
+        (@transport (@CommaCategory.object A B C X2 X3)
+           (fun y : @CommaCategory.object A B C X2 X3 =>
+            X10 X2 X3 y
+              (@comma_category_induced_functor_object_of H A B C
+                 (X, X0) (X2, X3) X14 X9))
+           (@comma_category_induced_functor_object_of H A B C
+              (X, X0) (X2, X3) X14 X8)
+           (@comma_category_induced_functor_object_of H A B C X1
+              (X2, X3) X16
+              (@comma_category_induced_functor_object_of H A B C
+                 (X, X0) X1 X13 X8)) X17 X15)) = X12 X X0 X8 X9 X11
+).
+    admit.
+    Unset Printing Implicit.
+    destruct s, d, d', m, m'.
+    simpl in *.
+    refine (X _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
 
     Time repeat match goal with
              | [ |- appcontext[?f _ _ (transport ?P ?p ?z)] ]
