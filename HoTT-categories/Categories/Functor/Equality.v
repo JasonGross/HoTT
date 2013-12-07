@@ -1,3 +1,5 @@
+(* TODO(jgross): Figure out why this file is faster than theories/categories/Functor/Paths.v *)
+
 Require Export Functor.Core.
 Require Import Common.
 

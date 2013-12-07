@@ -1,2 +1,0 @@
-Require Export Functor.
-Require Export NaturalTransformation.Core NaturalTransformation.Identity NaturalTransformation.Composition NaturalTransformation.CompositionLaws NaturalTransformation.Equality.
