@@ -231,7 +231,7 @@ Section comma.
     Time (repeat (apply path_forall; intro)).
     Time refine (comma_category_projection_functor_identity_of_helper _ _ _ _ _ _ _ _ _ _).
     unfold comma_category_induced_functor_object_of_identity.
-    (*Time (refine (comma_category_projection_functor_identity_of_helper_2 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
+    Time (refine (comma_category_projection_functor_identity_of_helper_2 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _)).
     exact (@CommaCategory.path_morphism A B C).
     exact (CommaCategory.ap_b_path_object' _ _ _ _ _).
     exact (CommaCategory.ap_a_path_object' _ _ _ _ _).
