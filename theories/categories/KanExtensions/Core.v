@@ -162,13 +162,42 @@ Section kan_extensions.
 
       - the right Kan extension operation forms the limit of a functor. *)
 
-  (** *** Left Kan extensions *)
-  (** Colimits are initial morphisms. *)
-  Definition IsLeftKanExtensionAlong (p : Functor C C') (h : Functor C D)
-    := @IsInitialMorphism (_ -> _) _ h (pullback_along p).
+  Section lan_ran.
+    Variable p : Functor C C'.
+    Variable h : Functor C D.
 
-  (** *** Right Kan extensions *)
-  (** Limits are terminal morphisms *)
-  Definition IsRightKanExtensionAlong (p : Functor C C') (h : Functor C D)
-    := @IsTerminalMorphism _ (_ -> _) (pullback_along p) h.
+    (** *** Left Kan extensions *)
+    (** Colimits are initial morphisms. *)
+    Definition IsLeftKanExtensionAlong
+      := @IsInitialMorphism (_ -> _) _ h (pullback_along p).
+
+    Definition Build_IsLeftKanExtensionAlong_curried
+    : forall A p' m H H', @IsLeftKanExtensionAlong _
+      := @Build_IsInitialMorphism_curried (_ -> _) _ _ _.
+
+    Definition Build_IsLeftKanExtensionAlong_uncurried
+    : forall univ, @IsLeftKanExtensionAlong _
+      := @Build_IsInitialMorphism_uncurried (_ -> _) _ _ _.
+
+    (** *** Right Kan extensions *)
+    (** Limits are terminal morphisms *)
+    Definition IsRightKanExtensionAlong
+      := @IsTerminalMorphism _ (_ -> _) (pullback_along p) h.
+
+    Definition Build_IsRightKanExtensionAlong_curried
+    : forall A p' m H H', @IsRightKanExtensionAlong _
+      := @Build_IsTerminalMorphism_curried _ (_ -> _) _ _.
+
+    Definition Build_IsRightKanExtensionAlong_uncurried
+    : forall univ, @IsRightKanExtensionAlong _
+      := @Build_IsTerminalMorphism_uncurried _ (_ -> _) _ _.
+  End lan_ran.
 End kan_extensions.
+
+Global Opaque
+       IsLeftKanExtensionAlong
+       Build_IsLeftKanExtensionAlong_curried
+       Build_IsLeftKanExtensionAlong_uncurried
+       IsRightKanExtensionAlong
+       Build_IsRightKanExtensionAlong_curried
+       Build_IsRightKanExtensionAlong_uncurried.
