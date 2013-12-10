@@ -166,8 +166,6 @@ Section Limit.
          (fun A' p'' p''_commutes => (univ.2.2.2 A' p'' p''_commutes).2.1)
          (fun A' p'' p''_commutes => (univ.2.2.2 A' p'' p''_commutes).2.2).
 
-  Print Implicit make_uncurried.
-
   Definition Build_IsLimit_uncurried
     := @make_uncurried
        C
@@ -186,6 +184,59 @@ Section Limit.
                (pullback_along C (Functors.to_terminal D)) !(F : object (_ -> _))
                !A (center _) (mk_nt A p' p'_commutes)))
        Build_IsLimit_curried.
+
+  Section EliminationAbstractionBarrier.
+    Context `(is_lim : @IsLimit _ C F G lim).,.
+
+      Definition IsInitialMorphism_object (M : IsInitialMorphism Ap) : D
+        := CommaCategory.b Ap.
+      Definition IsInitialMorphism_morphism (M : IsInitialMorphism Ap)
+      : morphism C X (U (IsInitialMorphism_object M))
+        := CommaCategory.f Ap.
+      Definition IsInitialMorphism_property_morphism (M : IsInitialMorphism Ap)
+                 (Y : D) (f : morphism C X (U Y))
+      : morphism D (IsInitialMorphism_object M) Y
+        := CommaCategory.h
+             (@center _ (M (CommaCategory.Build_object !X U tt Y f))).
+      Definition IsInitialMorphism_property_morphism_property
+                 (M : IsInitialMorphism Ap)
+                 (Y : D) (f : morphism C X (U Y))
+      : (morphism_of U (IsInitialMorphism_property_morphism M Y f))
+          o IsInitialMorphism_morphism M = f
+        := concat
+             (CommaCategory.p
+                (@center _ (M (CommaCategory.Build_object !X U tt Y f))))
+             (right_identity _ _ _ _).
+      Definition IsInitialMorphism_property_morphism_unique
+                 (M : IsInitialMorphism Ap)
+                 (Y : D) (f : morphism C X (U Y))
+                 m'
+                 (H : morphism_of U m' o IsInitialMorphism_morphism M = f)
+      : IsInitialMorphism_property_morphism M Y f = m'
+        := ap
+             (@CommaCategory.h _ _ _ _ _ _ _)
+             (@contr _
+                     (M (CommaCategory.Build_object !X U tt Y f))
+                     (CommaCategory.Build_morphism
+                        Ap (CommaCategory.Build_object !X U tt Y f)
+                        tt m' (H @ (right_identity _ _ _ _)^)%path)).
+      Definition IsInitialMorphism_property
+                 (M : IsInitialMorphism Ap)
+                 (Y : D) (f : morphism C X (U Y))
+      : Contr { m : morphism D (IsInitialMorphism_object M) Y
+              | morphism_of U m o IsInitialMorphism_morphism M = f }
+        := {| center := (IsInitialMorphism_property_morphism M Y f;
+                         IsInitialMorphism_property_morphism_property M Y f);
+              contr m' := path_sigma
+                            _
+                            (IsInitialMorphism_property_morphism M Y f;
+                             IsInitialMorphism_property_morphism_property M Y f)
+                            m'
+                            (@IsInitialMorphism_property_morphism_unique M Y f m'.1 m'.2)
+                            (center _) |}.
+
+
+  Definition IsLimit
 End Limit.
 
 (** TODO(JasonGross): Port MorphismsBetweenLimits from catdb *)
