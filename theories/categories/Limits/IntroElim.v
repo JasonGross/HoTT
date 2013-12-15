@@ -7,7 +7,8 @@ Require Import Functor.Paths NaturalTransformation.Paths.
 Require Import Comma.Core.
 Require Import Limits.Core.
 Require Import Category.Morphisms.
-Require Import Category.Dual Functor.Dual IndiscreteCategory.
+Require Import Category.Dual Functor.Dual FunctorCategory.Dual.
+Require Import IndiscreteCategory.
 Require Import Equivalences HoTT.Tactics types.Sigma.
 
 Set Universe Polymorphism.
