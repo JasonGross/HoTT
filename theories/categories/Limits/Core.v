@@ -2,7 +2,11 @@
 Require Import Category.Core Functor.Core NaturalTransformation.Core.
 Require Import Functor.Composition.Core.
 Require Import ExponentialLaws.Law1.Functors FunctorCategory.Core.
-Require Import UniversalProperties KanExtensions.Core InitialTerminalCategory.Core NatCategory.
+Require Import ExponentialLaws.Law1.Law.
+Require Import Functor.Composition.Functorial.
+Require Import UniversalProperties KanExtensions.Core.
+Require Import InitialTerminalCategory.Core.
+Require Import NatCategory.
 Require Import Functor.Paths NaturalTransformation.Paths.
 Require Import Comma.Core.
 Require Import Equivalences.
@@ -36,8 +40,10 @@ Section diagonal_functor.
      constant natural transformation [t(f) : Δ X -> Δ X'] determined
      by the formula [t(f) d = f] for each object [d] of [D].  **)
 
-  (** We use [C¹] rather than [C] for judgemental compatibility with
-      Kan extensions. *)
+  (** We construct two versions.  In the first, we use [C¹] rather
+      than [C] for judgemental compatibility with Kan extensions.  In
+      the latter, we use [C] so that limits are judgmentally opposite
+      colimits. *)
 
   Definition diagonal_functor : Functor (1 -> C) (D -> C)
     := @pullback_along _ D 1 C (Functors.to_terminal _).
@@ -58,6 +64,7 @@ Section diagonal_functor.
 End diagonal_functor.
 
 Arguments diagonal_functor : simpl never.
+Arguments diagonal_functor' : simpl never.
 
 Section diagonal_functor_lemmas.
   Context `{Funext}.
@@ -65,6 +72,12 @@ Section diagonal_functor_lemmas.
 
   Lemma compose_diagonal_functor x (F : Functor D' D)
   : diagonal_functor C D x o F = diagonal_functor _ _ x.
+  Proof.
+    path_functor.
+  Qed.
+
+  Lemma compose_diagonal_functor' x (F : Functor D' D)
+  : diagonal_functor' C D x o F = diagonal_functor' _ _ x.
   Proof.
     path_functor.
   Qed.
@@ -102,7 +115,7 @@ Section Limit.
 
   Definition IsLimit
     := @IsRightKanExtensionAlong _ D 1 C (Functors.to_terminal _) F.
-  (*Definition IsLimit' := @IsTerminalMorphism (_ -> _) (_ -> _) (diagonal_functor C D) F.*)
+  Definition IsLimit' := @IsTerminalMorphism (_ -> _) (_ -> _) (diagonal_functor C D) F.
   (*  Definition Limit (L : C) :=
     { t : SmallNaturalTransformation ((diagonal_functor C D) L) F &
       forall X : C, forall s : SmallNaturalTransformation ((diagonal_functor C D) X) F,
@@ -125,7 +138,7 @@ Section Limit.
   (** ** Definition of Colimit *)
   Definition IsColimit
     := @IsLeftKanExtensionAlong _ D 1 C (Functors.to_terminal _) F.
-  (*Definition IsColimit' := @IsInitialMorphism (_ -> _) (_ -> _) F (diagonal_functor C D).*)
+  Definition IsColimit' := @IsInitialMorphism (_ -> _) (_ -> _) F (diagonal_functor C D).
   (*  Definition Colimit (c : C) :=
     { t : SmallNaturalTransformation F ((diagonal_functor C D) c) &
       forall X : C, forall s : SmallNaturalTransformation F ((diagonal_functor C D) X),
@@ -164,5 +177,28 @@ Section Limit.
           intros A' p'.
           specialize (UniversalProperty (A' (center _))).*)
 End Limit.
+
+Section equiv.
+  (** We prove that the [C¹]-based and [C]-based definitions are
+  equivalent. *)
+  Context `{Funext}.
+  Variable C : PreCategory.
+  Variable D : PreCategory.
+  Variable F : Functor D C.
+
+  Local Transparent IsRightKanExtensionAlong IsLeftKanExtensionAlong.
+
+  Definition islimit'_islimit Ap : @IsLimit _ _ _ F Ap  -> @IsLimit' _ _ _ F Ap.
+  Proof.
+    intro H'.
+    unfold IsLimit, IsLimit', IsRightKanExtensionAlong in *.
+    destruct Ap as [? [] ?].
+    pose proof (fun q => @Build_IsTerminalMorphism_uncurried _ _ (diagonal_functor C D) F (a; (f; q))) as H''.
+    simpl in *.
+    apply H''.
+    intros A' p'.
+
+    Set Printing Implicit.
+
 
 (** TODO(JasonGross): Port MorphismsBetweenLimits from catdb *)
