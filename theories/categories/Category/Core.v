@@ -38,9 +38,7 @@ Record PreCategory :=
       left_identity : forall a b (f : morphism a b), identity b o f = f;
       right_identity : forall a b (f : morphism a b), f o identity a = f;
       (** Ask for the double-identity version so that [InitialTerminalCategory.Functors.from_terminal C^op X] and [(InitialTerminalCategory.Functors.from_terminal C X)^op] are convertible. *)
-      identity_identity : forall x, identity x o identity x = identity x;
-
-      trunc_morphism : forall s d, IsHSet (morphism s d)
+      identity_identity : forall x, identity x o identity x = identity x
     }.
 
 Bind Scope category_scope with PreCategory.
@@ -71,8 +69,6 @@ Definition Build_PreCategory
        left_identity
        right_identity
        (fun _ => left_identity _ _ _).
-
-Existing Instance trunc_morphism.
 
 (** create a hint db for all category theory things *)
 Create HintDb category discriminated.

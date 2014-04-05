@@ -72,7 +72,7 @@ Section iso_contr.
             (@right_inverse _ _ _ m).
     Defined.
 
-    Global Instance trunc_isisomorphism : IsHProp (IsIsomorphism m).
+    Global Instance trunc_isisomorphism `{forall x y, IsHSet (morphism C x y)} : IsHProp (IsIsomorphism m).
     Proof.
       eapply trunc_equiv'; [ exact issig_isisomorphism | ].
       apply hprop_allpath.
@@ -86,6 +86,13 @@ Section iso_contr.
                | _ => (exists idpath)
                | _ => apply path_sigma_uncurried
              end.
+      (*Require Import PathGroupoids.
+      match goal with
+        | [ |- { p : ?T & transport _ p ?q = ?r } ]
+          => cut (T /\ q = r)
+      end.
+      intros [H0 H1]; exists H0; rewrite transport_const; exact H1.
+      split.*)
     Qed.
   End IsIsomorphism.
 
@@ -101,13 +108,13 @@ Section iso_contr.
           (@isisomorphism_isomorphic C s d).
   Defined.
 
-  Global Instance trunc_Isomorphic : IsHSet (Isomorphic s d).
+  Global Instance trunc_Isomorphic `{forall x y, IsHSet (morphism C x y)} : IsHSet (Isomorphic s d).
   Proof.
     eapply trunc_equiv'; [ exact issig_isomorphic | ].
     typeclasses eauto.
   Qed.
 
-  Definition path_isomorphic (i j : Isomorphic s d)
+  Definition path_isomorphic `{forall x y, IsHSet (morphism C x y)} (i j : Isomorphic s d)
   : @morphism_isomorphic _ _ _ i = @morphism_isomorphic _ _ _ j
     -> i = j.
   Proof.
@@ -117,7 +124,7 @@ Section iso_contr.
     exact (center _).
   Defined.
 
-  Global Instance isequiv_path_isomorphic
+  Global Instance isequiv_path_isomorphic `{forall x y, IsHSet (morphism C x y)}
   : IsEquiv (path_isomorphic i j).
   Proof.
     intros.

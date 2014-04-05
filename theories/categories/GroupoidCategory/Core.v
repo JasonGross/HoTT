@@ -38,7 +38,7 @@ Proof.
                              _
                              _
                              _
-                             _);
+                             (*_*));
   simpl; intros; path_induction; reflexivity.
 Defined.
 

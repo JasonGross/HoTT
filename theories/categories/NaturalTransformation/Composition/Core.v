@@ -68,23 +68,23 @@ Section composition.
            @ (associativity _ _ _ _ _ _ _ _).
 
     (** We define the symmetrized version separately so that we can get more unification in the functor [(C → D)ᵒᵖ → (Cᵒᵖ → Dᵒᵖ)] *)
-    Definition compose_commutes_sym s d (m : morphism C s d)
+    (*Definition compose_commutes_sym s d (m : morphism C s d)
     : morphism_of F'' m o CO s = CO d o morphism_of F m
       := (associativity_sym _ _ _ _ _ _ _ _)
            @ ap (fun x => x o _) (commutes_sym T' _ _ m)
            @ (associativity _ _ _ _ _ _ _ _)
            @ ap (fun x => _ o x) (commutes_sym T _ _ m)
-           @ (associativity_sym _ _ _ _ _ _ _ _).
+           @ (associativity_sym _ _ _ _ _ _ _ _).*)
 
     Global Arguments compose_commutes : simpl never.
-    Global Arguments compose_commutes_sym : simpl never.
+    (*Global Arguments compose_commutes_sym : simpl never.*)
 
     Definition compose
     : NaturalTransformation F F''
       := Build_NaturalTransformation' F F''
                                       (fun c => CO c)
                                       compose_commutes
-                                      compose_commutes_sym.
+                                      (*compose_commutes_sym*).
   End compose.
 
   Local Ltac whisker_t :=

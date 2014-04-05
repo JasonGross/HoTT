@@ -25,7 +25,7 @@ Section equiv_iso_set_cat.
          (path_forall _ _ (eissect _))
          (path_forall _ _ (eisretr _)).
 
-  Definition isequiv_isiso s d (m : morphism set_cat s d)
+  (*Definition isequiv_isiso s d (m : morphism set_cat s d)
              `{IsIsomorphism _ _ _ m}
   : IsEquiv m
     := BuildIsEquiv
@@ -56,7 +56,7 @@ Section equiv_iso_set_cat.
         apply ap;
         apply allpath_hprop
       ).
-  Defined.
+  Defined.*)
 End equiv_iso_set_cat.
 
 Section equiv_iso_prop_cat.

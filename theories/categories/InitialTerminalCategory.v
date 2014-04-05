@@ -94,7 +94,7 @@ Module Functors.
 
     Variable C : PreCategory.
 
-    Global Instance trunc_initial_category
+    (*Global Instance trunc_initial_category
            `{@IsInitialCategory zero}
     : Contr (Functor zero C)
       := let x := {| center := from_initial C |} in x.
@@ -112,7 +112,7 @@ Module Functors.
     : IsHProp (Functor C zero).
     Proof.
       typeclasses eauto.
-    Qed.
+    Qed.*)
 
     Definition to_initial_category_empty
                `{@IsInitialCategory zero}
@@ -147,7 +147,7 @@ Module NaturalTransformations.
            (fun x => initial_category_rect _ x)
            (fun x _ _ => initial_category_rect _ x).
 
-    Global Instance trunc_from_initial
+    (*Global Instance trunc_from_initial
            `{Funext}
            `{@IsInitialCategory zero} (F G : Functor zero C)
     : Contr (NaturalTransformation F G)
@@ -160,16 +160,16 @@ Module NaturalTransformations.
           intro x;
           exact (initial_category_rect _ x)
         ).
-    Defined.
+    Defined.*)
 
     Local Existing Instance Functors.to_initial_category_empty.
 
-    Global Instance trunc_to_initial
+    (*Global Instance trunc_to_initial
            `{Funext}
            `{@IsInitialCategory zero}
            (F G : Functor zero C)
     : Contr (NaturalTransformation F G)
-      := trunc_from_initial F G.
+      := trunc_from_initial F G.*)
 
     Definition to_terminal
                `{@IsTerminalCategory one H0 H1} (F G : Functor C one)
@@ -179,14 +179,14 @@ Module NaturalTransformations.
            (fun x => center _)
            (fun _ _ _ => path_contr _ _).
 
-    Global Instance trunc_to_terminal
+    (*Global Instance trunc_to_terminal
            `{Funext}
            `{@IsTerminalCategory one H0 H1} (F G : Functor C one)
     : Contr (NaturalTransformation F G)
       := let x := {| center := to_terminal F G |} in x.
     Proof.
       abstract (path_natural_transformation; exact (contr _)).
-    Defined.
+    Defined.*)
   End NaturalTransformations.
 End NaturalTransformations.
 

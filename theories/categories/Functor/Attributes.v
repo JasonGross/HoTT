@@ -111,7 +111,7 @@ Section fully_faithful_helpers.
     := @isequiv_isepi_ismono _ fs0 fs1 x y m Hepi Hmono.*)
 End fully_faithful_helpers.
 
-Global Instance isfullyfaithful_isfull_isfaithful
+(*Global Instance isfullyfaithful_isfull_isfaithful
        `{Univalence} `{fs0 : Funext} `{fs1 : Funext}
        `{Hfull : @IsFull fs0 C D F}
        `{Hfaithful : @IsFaithful fs0 C D F}
@@ -121,4 +121,4 @@ Global Instance isfullyfaithful_isfull_isfaithful
                   (@isequiv_isepimorphism_ismonomorphism
                      fs1 _ _ _ _
                      (Hfull x y)
-                     (Hfaithful x y)).
+                     (Hfaithful x y)).*)

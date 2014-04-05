@@ -1,4 +1,5 @@
 Require Import Category.Core Functor.Core Functor.Identity Functor.Composition.Core NaturalTransformation.Core NaturalTransformation.Identity NaturalTransformation.Composition.Core NaturalTransformation.Paths.
+Require Import types.Sigma HoTT.Tactics types.Forall PathGroupoids.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -18,6 +19,13 @@ Section natural_transformation_identity.
         (T : NaturalTransformation F F')
   : 1 o T = T.
   Proof.
+    apply (ap (@equiv_sig_natural_transformation _ _ F F')^-1)^-1%equiv.
+    simpl.
+    apply path_sigma_uncurried; simpl.
+    exists (path_forall _ _ (fun c => @left_identity _ _ _ _)).
+    repeat (apply path_forall; intro).
+    rewrite !transport_forall_constant.
+    transport_path_forall_hammer.
     path_natural_transformation; auto with morphism.
   Qed.
 

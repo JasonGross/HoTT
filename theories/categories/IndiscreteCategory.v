@@ -26,7 +26,7 @@ Module Export Core.
                              (fun _ _ f => match f with tt => idpath end)
                              (fun _ _ f => match f with tt => idpath end)
                              (fun _ => idpath)
-                             _.
+                             (*_*).
   End indiscrete_category.
 
   Definition isstrict_indiscrete_category `{H : IsHSet X}

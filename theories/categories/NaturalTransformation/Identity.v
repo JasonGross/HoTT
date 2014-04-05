@@ -50,7 +50,7 @@ Section identity.
            F G
            (fun c => CO c)
            generalized_identity_commutes
-           generalized_identity_commutes_sym.
+           (*generalized_identity_commutes_sym*).
   End generalized.
 
   Global Arguments generalized_identity_commutes / .
@@ -80,7 +80,7 @@ Section identity.
 End identity.
 
 Global Arguments commutes : simpl never.
-Global Arguments commutes_sym : simpl never.
+(*Global Arguments commutes_sym : simpl never.*)
 
 Module Export NaturalTransformationIdentityNotations.
   Notation "1" := (identity _) : natural_transformation_scope.

@@ -34,14 +34,15 @@ Section path_natural_transformation.
       | intros; apply eta_sigma ].
   Defined.
 
-  Global Instance trunc_natural_transformation
-  : IsHSet (NaturalTransformation F G).
+  Global Instance trunc_natural_transformation n `{forall x y, IsTrunc n (morphism D x y)}
+  : IsTrunc n (NaturalTransformation F G).
   Proof.
     eapply trunc_equiv'; [ exact equiv_sig_natural_transformation | ].
     typeclasses eauto.
   Qed.
 
   Section path.
+    Context `{forall s d, IsHSet (morphism D s d)}.
     Variables T U : NaturalTransformation F G.
 
     Lemma path'_natural_transformation

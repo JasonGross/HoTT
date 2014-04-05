@@ -23,7 +23,7 @@ Section prod.
               _
               _
               _
-              _);
+              (*_*));
     abstract (
         repeat (simpl || intros [] || intro);
         try f_ap; auto with morphism

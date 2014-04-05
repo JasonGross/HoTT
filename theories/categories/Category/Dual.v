@@ -21,7 +21,7 @@ Section opposite.
          (fun _ _ => @right_identity _ _ _)
          (fun _ _ => @left_identity _ _ _)
          (@identity_identity C)
-         _.
+         (*_*).
 End opposite.
 
 Local Notation "C ^op" := (opposite C) (at level 3) : category_scope.
