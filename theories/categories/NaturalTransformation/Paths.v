@@ -104,4 +104,5 @@ Ltac path_natural_transformation :=
   repeat match goal with
            | _ => intro
            | _ => apply path_natural_transformation; simpl
+           | _ => typeclasses eauto
          end.
