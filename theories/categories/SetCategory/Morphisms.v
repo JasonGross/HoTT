@@ -48,7 +48,7 @@ Section equiv_iso_set_cat.
          (path_forall _ _ (eissect _))
          (path_forall _ _ (eisretr _)).
 
-  Definition isequiv_isiso s d (m : morphism set_cat s d)
+  (*Definition isequiv_isiso s d (m : morphism set_cat s d)
              `{IsIsomorphism _ _ _ m}
   : IsEquiv m
     := BuildIsEquiv
@@ -79,7 +79,7 @@ Section equiv_iso_set_cat.
         apply ap;
         apply allpath_hprop
       ).
-  Defined.
+  Defined.*)
 
   Lemma path_idtoequiv_idtoiso (s d : set_cat) (p : s = d)
   : iso_equiv s d (equiv_path _ _ (ap setT p)) = idtoiso set_cat p.

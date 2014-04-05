@@ -28,7 +28,7 @@ Module Export Core.
                              (fun _ _ f => match f with tt => idpath end)
                              (fun _ _ f => match f with tt => idpath end)
                              (fun _ => idpath)
-                             _.
+                             (*_*).
   End indiscrete_category.
 
   (** *** Indiscrete categories are strict categories *)

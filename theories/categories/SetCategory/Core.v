@@ -15,13 +15,13 @@ Notation cat_of obj :=
                       (fun _ _ _ _ _ _ _ => idpath)
                       (fun _ _ _ => idpath)
                       (fun _ _ _ => idpath)
-                      _).
+                      (*(fun s d => @Arrow.trunc_arrow Funext_downward_closed _ _ _ _)*)).
 
 (** There is a category [Set], where the objects are sets and the
     morphisms are set morphisms *)
 
 Definition prop_cat `{Funext} : PreCategory := cat_of hProp.
-Definition set_cat `{Funext} : PreCategory := cat_of hSet.
+Definition set_cat `{Funext} : PreCategory := cat_of Type (*hSet*).
 
 (** ** [Prop] is a strict category *)
 Instance isstrict_prop_cat `{Univalence}

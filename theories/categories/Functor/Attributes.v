@@ -108,6 +108,7 @@ Section fully_faithful_helpers.
     := @isequiv_isepi_ismono _ x y m Hepi Hmono.
 End fully_faithful_helpers.
 
+(*
 Global Instance isfullyfaithful_isfull_isfaithful
        `{Univalence}
        `{Hfull : @IsFull _ C D F}
@@ -118,7 +119,7 @@ Global Instance isfullyfaithful_isfull_isfaithful
                   (@isequiv_isepimorphism_ismonomorphism
                      _ _ _ _
                      (Hfull x y)
-                     (Hfaithful x y)).
+                     (Hfaithful x y)).*)
 
 (** ** Split Essentially Surjective *)
 (** Quoting the HoTT Book:

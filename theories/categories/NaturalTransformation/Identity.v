@@ -51,7 +51,7 @@ Section identity.
            F G
            (fun c => CO c)
            generalized_identity_commutes
-           generalized_identity_commutes_sym.
+           (*generalized_identity_commutes_sym*).
   End generalized.
 
   Global Arguments generalized_identity_commutes / .

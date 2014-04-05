@@ -34,6 +34,8 @@ Section path_functor.
     issig (@Build_Functor C D) (@object_of C D) (@morphism_of C D) (@composition_of C D) (@identity_of C D).
   Defined.
 
+  Context `{forall x y, IsHSet (morphism D x y)}.
+
   (** We could leave it at that and be done with it, but we want a more convenient form for actually constructing paths between functors.  For this, we write a trimmed down version of something equivalent to the type of paths between functors. *)
 
   Local Notation path_functor'_T F G
