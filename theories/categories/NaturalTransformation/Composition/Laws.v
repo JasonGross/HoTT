@@ -26,6 +26,17 @@ Section natural_transformation_identity.
     repeat (apply path_forall; intro).
     rewrite !transport_forall_constant.
     transport_path_forall_hammer.
+    unfold compose.
+    simpl.
+    Arguments commutes C D F G !T _ _ _ /  : rename.
+    simpl.
+    unfold compose_commutes.
+    simpl.
+    generalize (commutes T x x0 x1).
+    intro p.
+    (** HERE *)
+    SearchAbout (transport _ _ (transport _ _ _)).
+    fold commutes.
     path_natural_transformation; auto with morphism.
   Qed.
 
