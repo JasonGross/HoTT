@@ -95,6 +95,7 @@ Section coyoneda_lemma.
   Variable A : PreCategory.
   (** Let [F] be an arbitrary functor from [A] to [Set]. Then Yoneda's
       lemma says that: *)
+  Context `{forall x y, IsHSet (morphism set_cat x y)}.
   Variable F : object (A -> set_cat).
   (** For each object [a] of [A], *)
   Variable a : A.
@@ -112,9 +113,7 @@ Section coyoneda_lemma.
 
   Definition coyoneda_lemma_morphism
   : morphism set_cat
-             (BuildhSet
-                (morphism (A -> set_cat) (coyoneda A a) F)
-                _)
+             (morphism (A -> set_cat) (coyoneda A a) F)
              (F a)
     := fun phi => phi a 1%morphism.
 
@@ -123,9 +122,7 @@ Section coyoneda_lemma.
   Definition coyoneda_lemma_morphism_inverse
   : morphism set_cat
              (F a)
-             (BuildhSet
-                (morphism (A -> set_cat) (coyoneda A a) F)
-                _).
+             (morphism (A -> set_cat) (coyoneda A a) F).
   Proof.
     intro Fa.
     hnf.
@@ -166,6 +163,7 @@ End coyoneda_lemma.
 Section yoneda_lemma.
   Context `{Funext}.
   Variable A : PreCategory.
+  Context `{forall x y, IsHSet (morphism set_cat x y)}.
   Variable G : object (A^op -> set_cat).
   Variable a : A.
     (** There is a contravariant version of Yoneda's lemma which
@@ -182,9 +180,7 @@ Section yoneda_lemma.
 
   Definition yoneda_lemma_morphism
   : morphism set_cat
-             (BuildhSet
-                (morphism (A^op -> set_cat) (yoneda A a) G)
-                _)
+             (morphism (A^op -> set_cat) (yoneda A a) G)
              (G a)
     := fun phi => phi a 1%morphism.
 
@@ -193,9 +189,7 @@ Section yoneda_lemma.
   Definition yoneda_lemma_morphism_inverse
   : morphism set_cat
              (G a)
-             (BuildhSet
-                (morphism (A^op -> set_cat) (yoneda A a) G)
-                _).
+             (morphism (A^op -> set_cat) (yoneda A a) G).
   Proof.
     intro Ga.
     hnf.
@@ -284,6 +278,7 @@ End yoneda_lemma.
 
 Section FullyFaithful.
   Context `{Funext}.
+  Context `{forall x y, IsHSet (morphism set_cat x y)}.
   Variable A : PreCategory.
 
   Local Arguments Overture.compose / .
