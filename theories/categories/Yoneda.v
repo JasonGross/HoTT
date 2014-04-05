@@ -108,6 +108,10 @@ Section coyoneda_lemma.
     (*Variable F : Functor A (@set_cat fs).*)
     (** For each object [a] of [A], *)
     (*Variable a : A.*)
+    Context `{forall x y, IsHSet (morphism set_cat x y)}.
+    (*Variable F : object (A -> set_cat).*)
+    (** For each object [a] of [A], *)
+    (*Variable a : A.*)
     (** the natural transformations from [hᵃ] to [F] are in one-to-one
       correspondence with the elements of [F(a)]. That is,
 
@@ -122,9 +126,7 @@ Section coyoneda_lemma.
 
     (*   Definition coyoneda_lemma_morphism (a : A)
   : morphism set_cat
-             (BuildhSet
-                (morphism (A -> set_cat) (coyoneda A a) F)
-                _)
+             (morphism (A -> set_cat) (coyoneda A a) F)
              (F a)
     := fun phi => phi a 1%morphism. *)
 
@@ -270,9 +272,7 @@ Section yoneda_lemma.
 
     (* Definition yoneda_lemma_morphism A (G : object (A^op -> set_cat)) (a : A)
   : morphism set_cat
-             (BuildhSet
-                (morphism (A^op -> set_cat) (yoneda A a) G)
-                _)
+             (morphism (A^op -> set_cat) (yoneda A a) G)
              (G a)
     := fun phi => phi a 1%morphism.*)
 
@@ -341,6 +341,8 @@ End yoneda_lemma.
 
 Section FullyFaithful.
   Context `{Funext}.
+  Context `{forall x y, IsHSet (morphism set_cat x y)}.
+  Variable A : PreCategory.
 
   Local Arguments Overture.compose / .
 
