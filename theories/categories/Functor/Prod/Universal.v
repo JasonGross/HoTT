@@ -32,13 +32,21 @@ Section universal.
     (** ** [fst ∘ (a * b) = a] *)
     Lemma compose_fst_prod : fst o (a * b) = a.
     Proof.
-      path_functor; trivial.
+      expand; destruct a; f_ap; simpl; repeat (apply path_forall; intro);
+      match goal with
+        | [ |- appcontext[path_prod' ?x ?y] ] => destruct x, y
+      end;
+      reflexivity.
     Defined.
 
     (** ** [snd ∘ (a * b) = b] *)
     Lemma compose_snd_prod : snd o (a * b) = b.
     Proof.
-      path_functor; trivial.
+      expand; destruct b; f_ap; simpl; repeat (apply path_forall; intro);
+      match goal with
+        | [ |- appcontext[path_prod' ?x ?y] ] => destruct x, y
+      end;
+      reflexivity.
     Defined.
 
     Section unique.
@@ -89,10 +97,10 @@ Section universal.
         reflexivity.
       Qed.
 
-      Lemma unique
+      Lemma unique `{forall x y, IsHSet (morphism A x y), forall x y, IsHSet (morphism B x y)}
       : a * b = F.
       Proof.
-        path_functor.
+        path_functor; auto with typeclass_instances.
         exists (path_forall _ _ unique_helper).
         apply unique_helper2.
       Defined.
@@ -103,6 +111,7 @@ Section universal.
     (** ** Universal property characterizing unique product of functors *)
     Global Instance contr_prod_type
            `{IsHSet (Functor C A), IsHSet (Functor C B)}
+           `{forall x y, IsHSet (morphism A x y), forall x y, IsHSet (morphism B x y)}
     : Contr { F : Functor C (A * B)
             | fst o F = a
               /\ snd o F = b }
@@ -120,9 +129,11 @@ Section universal.
   End universal.
 
   (** ** Classification of path space of functors to a product precategory *)
-  Definition path_prod (F G : Functor C (A * B))
-             (H1 : fst o F = fst o G)
-             (H2 : snd o F = snd o G)
+  Definition path_prod
+             (F G : Functor C (A * B))
+             `{forall x y, IsHSet (morphism A x y), forall x y, IsHSet (morphism B x y)}
+             (H1' : fst o F = fst o G)
+             (H2' : snd o F = snd o G)
   : F = G.
   Proof.
     etransitivity; [ apply symmetry | ];

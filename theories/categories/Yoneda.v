@@ -82,6 +82,9 @@ Local Open Scope functor_scope.
 (** ** The (co)yoneda functors [A → (Aᵒᵖ → set)] *)
 Section yoneda.
   Context `{Funext}.
+  (** False, but a useful placeholder *)
+  Context `{forall x y, IsHSet (morphism set_cat x y)}.
+  Variable A : PreCategory.
 
   (* TODO(JasonGross): Find a way to unify the [yoneda] and [coyoneda] lemmas into a single lemma which is more functorial. *)
 

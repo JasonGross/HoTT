@@ -26,10 +26,10 @@ Module Swap.
                      (fun _ _ _ _ _ => idpath)
                      (fun _ => idpath).
 
-  Lemma law `{Funext} (C D : PreCategory)
+  Lemma law `{Funext} (C D : PreCategory) `{forall x y, IsHSet (morphism C x y), forall x y, IsHSet (morphism D x y)}
   : functor C D o functor D C = 1.
   Proof.
-    path_functor.
+    path_functor; eauto with typeclass_instances.
     exists (path_forall _ _ (fun x => @eta_prod D C x)).
     repeat (apply path_forall; intro).
     rewrite !transport_forall_constant.
@@ -104,7 +104,7 @@ Module Law1.
       try first [ exact (compose_fst_prod _ _)
                 | exact (compose_snd_prod _ _) ];
       [];
-      apply Functor.Prod.Universal.path_prod;
+      apply Functor.Prod.Universal.path_prod; eauto with typeclass_instances;
       rewrite <- !Functor.Composition.Laws.associativity by assumption;
       (rewrite ?compose_fst_prod, ?compose_snd_prod,
        ?Functor.Composition.Laws.left_identity,
@@ -113,7 +113,7 @@ Module Law1.
       try (reflexivity || exact (center _)).
 
     (** *** [C × 1 ≅ C] *)
-    Lemma law1
+    Lemma law1 `{forall x y, IsHSet (morphism C x y), forall x y, IsHSet (morphism D x y)}
     : functor o inverse = 1
       /\ inverse o functor = 1.
     Proof.
@@ -122,7 +122,7 @@ Module Law1.
     Qed.
 
     (** *** [1 × C ≅ C] *)
-    Lemma law1'
+    Lemma law1' `{forall x y, IsHSet (morphism C x y), forall x y, IsHSet (morphism D x y)}
     : functor' o inverse' = 1
       /\ inverse' o functor' = 1.
     Proof.

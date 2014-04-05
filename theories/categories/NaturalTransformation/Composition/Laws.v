@@ -37,33 +37,47 @@ Section natural_transformation_identity.
     generalize (commutes T x x0 x1).
     intro p.
     (** HERE *)
-    SearchAbout (transport _ _ (transport _ _ _)).
-    fold commutes.
-    path_natural_transformation; auto with morphism.
+  Abort.
+  Lemma left_identity `{tr : forall x y, IsHSet (morphism D x y)} (F F' : Functor C D)
+        (T : NaturalTransformation F F')
+  : 1 o T = T.
+  Proof.
+    path_natural_transformation; auto with morphism typeclass_instances.
   Qed.
 
   (** ** right identity : [T ∘ 1 = T] *)
-  Lemma right_identity (F F' : Functor C D)
+  Lemma right_identity `{tr : forall x y, IsHSet (morphism D x y)} (F F' : Functor C D)
         (T : NaturalTransformation F F')
   : T o 1 = T.
   Proof.
-    path_natural_transformation; auto with morphism.
+    path_natural_transformation; auto with morphism typeclass_instances.
   Qed.
+
+  Local Arguments commutes _ _ _ _ !_ / _ _ _ : rename.
 
   (** ** right whisker left identity : [1 ∘ᴿ F = 1] *)
   Definition whisker_r_left_identity E
              (G : Functor D E) (F : Functor C D)
   : identity G oR F = 1.
   Proof.
-    path_natural_transformation; auto with morphism.
+    reflexivity.
   Qed.
 
   (** ** left whisker right identity : [G ∘ᴸ 1 = 1] *)
-  Definition whisker_l_right_identity E
+  Definition whisker_l_right_identity E `{forall x y, IsHSet (morphism E x y)}
              (G : Functor D E) (F : Functor C D)
   : G oL identity F = 1.
   Proof.
-    path_natural_transformation; auto with functor.
+    (*apply (ap (@equiv_sig_natural_transformation _ _ (G o F) (G o F))^-1)^-1%equiv.
+    simpl.
+    apply path_sigma_uncurried; simpl.
+    exists (path_forall _ _ (fun _ => identity_of _ _)).
+    repeat (apply path_forall; intro).
+    rewrite !transport_forall_constant.
+    transport_path_forall_hammer.
+    unfold whisker_l_commutes.
+    simpl. *)
+    path_natural_transformation; auto with functor typeclass_instances.
   Qed.
 End natural_transformation_identity.
 
@@ -83,10 +97,10 @@ Section whisker.
     Variable T' : NaturalTransformation G G'.
     Variable T : NaturalTransformation F F'.
 
-    Lemma exchange_whisker
+    Lemma exchange_whisker `{forall x y, IsHSet (morphism E x y)}
     : (G' oL T) o (T' oR F) = (T' oR F') o (G oL T).
     Proof.
-      path_natural_transformation; simpl.
+      path_natural_transformation; simpl; auto with typeclass_instances.
       symmetry.
       apply NaturalTransformation.Core.commutes.
     Qed.
@@ -100,17 +114,17 @@ Section whisker.
     Variable T' : NaturalTransformation F G.
 
     (** ** left whisker composition : [F ∘ᴸ (T ∘ T') = (F ∘ᴸ T) ∘ (F ∘ᴸ T')] *)
-    Lemma composition_of_whisker_l E (I : Functor D E)
+    Lemma composition_of_whisker_l E `{forall x y, IsHSet (morphism E x y)} (I : Functor D E)
     : I oL (T o T') = (I oL T) o (I oL T').
     Proof.
-      path_natural_transformation; apply composition_of.
+      path_natural_transformation; auto with typeclass_instances; apply composition_of.
     Qed.
 
     (** ** right whisker composition : [(T ∘ T') ∘ᴿ F = (T ∘ᴿ F) ∘ (T' ∘ᴿ F)] *)
-    Lemma composition_of_whisker_r B (I : Functor B C)
+    Lemma composition_of_whisker_r B `{forall x y, IsHSet (morphism E x y)} (I : Functor B C)
     : (T o T') oR I = (T oR I) o (T' oR I).
     Proof.
-      path_natural_transformation; apply idpath.
+      reflexivity.
     Qed.
   End whisker.
 End whisker.
@@ -146,12 +160,13 @@ Section associativity.
 
     Definition associativity
                C D F G H I
+               `{forall x y, IsHSet (morphism D x y)}
                (V : @NaturalTransformation C D F G)
                (U : @NaturalTransformation C D G H)
                (T : @NaturalTransformation C D H I)
     : (T o U) o V = T o (U o V).
     Proof.
-      path_natural_transformation.
+      path_natural_transformation; auto with typeclass_instances.
       apply associativity.
     Qed.
   End nt.
@@ -164,7 +179,7 @@ Section functor_identity.
   Variable D : PreCategory.
 
   Local Ltac nt_id_t := split; path_natural_transformation;
-                        autorewrite with morphism; reflexivity.
+                        autorewrite with morphism; auto with typeclass_instances.
 
   (** ** left unitors : natural transformations between [1 ∘ F] and [F] *)
   Section left.
@@ -177,11 +192,11 @@ Section functor_identity.
     : NaturalTransformation F (1 o F)
       := Eval simpl in generalized_identity F (1 o F) idpath idpath.
 
-    Theorem left_identity_isomorphism
+    Theorem left_identity_isomorphism `{forall x y, IsHSet (morphism C x y)}
     : left_identity_natural_transformation_1 o left_identity_natural_transformation_2 = 1
       /\ left_identity_natural_transformation_2 o left_identity_natural_transformation_1 = 1.
     Proof.
-      nt_id_t.
+      nt_id_t; eauto with typeclass_instances.
     Qed.
   End left.
 
@@ -194,7 +209,7 @@ Section functor_identity.
     Definition right_identity_natural_transformation_2 : NaturalTransformation F (F o 1)
       := Eval simpl in generalized_identity F (F o 1) idpath idpath.
 
-    Theorem right_identity_isomorphism
+    Theorem right_identity_isomorphism `{forall x y, IsHSet (morphism D x y)}
     : right_identity_natural_transformation_1 o right_identity_natural_transformation_2 = 1
       /\ right_identity_natural_transformation_2 o right_identity_natural_transformation_1 = 1.
     Proof.

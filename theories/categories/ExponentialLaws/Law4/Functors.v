@@ -14,6 +14,8 @@ Section law4.
   Variable C2 : PreCategory.
   Variable D : PreCategory.
 
+  Context `{forall x y, IsHSet (morphism D x y)}.
+
   Local Open Scope morphism_scope.
 
   Local Ltac do_exponential4_helper rew_comp :=

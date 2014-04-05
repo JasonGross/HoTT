@@ -15,22 +15,24 @@ Section functor_category.
   Variable C : PreCategory.
   Variable D : PreCategory.
 
+  Context `{forall x y, IsHSet (morphism D x y)}.
+
   (** There is a category Fun(C, D) of functors from [C] to [D]. *)
   Definition functor_category : PreCategory
     := @Build_PreCategory (Functor C D)
                           (@NaturalTransformation C D)
                           (@identity C D)
                           (@compose C D)
-                          (@associativity _ C D)
-                          (@left_identity _ C D)
-                          (@right_identity _ C D)
-                          _.
+                          (fun _ _ _ _ => @associativity _ C D _ _ _ _ _)
+                          (@left_identity _ C D _)
+                          (@right_identity _ C D _)
+                          (*_*).
 End functor_category.
 
 Local Notation "C -> D" := (functor_category C D) : category_scope.
 
 (** ** [C → D] is a strict category if [D] is *)
-Lemma isstrict_functor_category `{Funext} C `{IsStrictCategory D}
+Lemma isstrict_functor_category `{Funext} C `{IsStrictCategory D} `{forall x y, IsHSet (morphism D x y)}
 : IsStrictCategory (C -> D).
 Proof.
   typeclasses eauto.
