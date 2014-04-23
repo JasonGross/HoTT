@@ -76,3 +76,28 @@ Section faithfull_precomposition_essential_surjective.
            end.
   Qed.
 End faithfull_precomposition_essential_surjective.
+
+(** ** Precomposition with an essentially surjective and full functor is full. *)
+Section full_precomposition_essentially_surjective_and_full.
+  (** Quoting the HoTT Book:
+
+      If [A], [B], [C] are precategories and [H : A → B] is
+      essentially surjective and full, then [(– ∘ H) : (B → C) → (A →
+      C) is fully faithful. *)
+
+  Context `{fs : Funext}.
+  Variable A : PreCategory.
+  Variable B : PreCategory.
+  Variable C : PreCategory.
+
+  Variable H : Functor A B.
+
+  Context `{H_is_essentially_surjective : IsEssentiallySurjective A B H}.
+  Context `{H_is_full : @IsFull fs A B H}.
+
+  (** Proof. It remains to show fullness. Thus, let [F], [G : B → C]
+      and [g : FH → GH]. We claim that for any [b : B], the type
+
+      [{ g : hom_C(Fb, Gb) & ∀ (a : A) (f : H a ≅ b), γₐ = G f⁻¹ ∘ g ∘ f}] (+)
+
+      is contractible. *)
