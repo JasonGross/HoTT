@@ -272,4 +272,8 @@ CATEGORY_VFILES = \
 
 CONTRIB_VFILES = \
 	$(srcdir)/contrib/HoTTBook.v \
-	$(srcdir)/contrib/HoTTBookExercises.v
+	$(srcdir)/contrib/HoTTBookExercises.v \
+	$(srcdir)/theories/RC/pathnotations.v \
+	$(srcdir)/theories/RC/HoTT_Foundations.v
+
+
