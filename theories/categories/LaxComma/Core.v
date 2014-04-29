@@ -11,12 +11,15 @@ Require Import Category.Morphisms FunctorCategory.Core.
 Require Import Pseudofunctor.Core.
 Require Import NaturalTransformation.Composition.Laws.
 Require Import FunctorCategory.Morphisms.
-Require LaxComma.CoreLaws.
+Require LaxComma.Core.Parts LaxComma.Core.AssociativityLaw LaxComma.Core.LeftIdentityLaw LaxComma.Core.RightIdentityLaw.
 Require Import types.Record Trunc HoTT.Tactics types.Paths types.Sigma.
 
 Import Functor.Identity.FunctorIdentityNotations.
 Import Pseudofunctor.Identity.PseudofunctorIdentityNotations.
-Import LaxComma.CoreLaws.LaxCommaCategory.
+Import LaxComma.Core.Parts.LaxCommaCategory.
+Import LaxComma.Core.AssociativityLaw.LaxCommaCategory.
+Import LaxComma.Core.LeftIdentityLaw.LaxCommaCategory.
+Import LaxComma.Core.RightIdentityLaw.LaxCommaCategory.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.

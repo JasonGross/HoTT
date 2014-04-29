@@ -45,7 +45,7 @@ Local Open Scope category_scope.
        and you've worked both of those cases out already.
        *)
 
-Module Import LaxCommaCategoryParts.
+Module Import LaxCommaCategory.
   Section lax_comma_category_parts.
     Context `{Funext}.
     Variable A : PreCategory.
@@ -269,4 +269,4 @@ Module Import LaxCommaCategoryParts.
 
     Global Arguments identity _ / .
   End lax_comma_category_parts.
-End LaxCommaCategoryParts.
+End LaxCommaCategory.
