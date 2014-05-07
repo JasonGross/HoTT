@@ -107,10 +107,10 @@ Definition is_precategory (C : precategory_data) :=
                      f ;; (g ;; h) = (f ;; g) ;; h).
 
 
-Lemma isaprop_is_precategory (C : precategory_data)
+Instance isaprop_is_precategory (C : precategory_data)
   : isaprop (is_precategory C).
 Proof.
-  admit.
+  typeclasses eauto.
 Qed.
 
 Definition precategory := total2 is_precategory.
@@ -195,15 +195,10 @@ Definition is_inverse_in_precat {C : precategory} {a b : C}
   dirprod (f ;; g = identity a)
           (g ;; f = identity b).
 
-Lemma isaprop_is_inverse_in_precat (C : precategory) (a b : ob C)
+Instance isaprop_is_inverse_in_precat (C : precategory) (a b : ob C)
    (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
 Proof.
-  admit.
-(*
   apply isapropdirprod.
-  apply (pr2 (a --> a)).
-  apply (pr2 (b --> b)).
-*)
 Qed.
 
 Lemma inverse_unique_precat (C : precategory) (a b : ob C)
@@ -224,7 +219,7 @@ Qed.
 Definition is_isomorphism {C : precategory} {a b : ob C}
   (f : a --> b) := total2 (fun g => is_inverse_in_precat f g).
 
-Lemma isaprop_is_isomorphism {C : precategory} {a b : ob C}
+Instance isaprop_is_isomorphism {C : precategory} {a b : ob C}
      (f : a --> b) : isaprop (is_isomorphism f).
 Proof.
   apply invproofirrelevance.
@@ -234,9 +229,9 @@ Proof.
   destruct g as [g [eta eps]].
   destruct g' as [g' [eta' eps']].
   simpl in *.
-admit.
+  admit.
 (*
-  apply pairofobuip.
+  apply pairofobuip. (* Error: The reference pairofobuip was not found in the current environment. *)
 *)
 Qed.
 
@@ -248,29 +243,17 @@ Lemma eq_iso (C : precategory)(a b : ob C)
 Proof.
   intro H.
   apply (total2_paths H).
-admit.
-(*
   apply proofirrelevance.
-  apply isaprop_is_isomorphism.
-*)
 Defined.
 
 Definition morphism_from_iso (C : precategory)(a b : ob C)
    (f : iso a b) : a --> b := pr1 f.
-Coercion morphism_from_iso : iso >-> hSetpr1.
+Coercion morphism_from_iso : iso >-> pr1hSet.
 
 Lemma isaset_iso {C : precategory} (a b :ob C) :
   isaset (iso a b).
 Proof.
-admit.
-(*
-  change isaset with (isofhlevel 2).
   apply isofhleveltotal2.
-  apply (pr2 (a --> b)).
-  intro f.
-  apply isasetaprop.
-  apply isaprop_is_isomorphism.
-*)
 Qed.
 
 Lemma identity_is_iso (C : precategory) (a : ob C) :
