@@ -10,19 +10,19 @@ january 2013
 
 (** **********************************************************
 
-Contents :  Definition of 
-		Precategories, 
-	        Categories (aka saturated precategories)         	
+Contents :  Definition of
+		Precategories,
+	        Categories (aka saturated precategories)
                 Setcategories
-                
+
                 Isomorphisms
                   various lemmas:
                     uniqueness of inverse, composition etc.
                     stability under composition
-                
+
                 Categories have groupoid as objects
-                	
-           
+
+
 ************************************************************)
 
 Require Import HoTT.
@@ -45,17 +45,17 @@ Definition precategory_ob_mor_pair (ob : UU)(mor : ob -> ob -> hSet) :
 Definition ob (C : precategory_ob_mor) : Type := @pr1 _ _ C.
 Coercion ob : precategory_ob_mor >-> Sortclass.
 
-Definition precategory_morphisms { C : precategory_ob_mor } : 
+Definition precategory_morphisms { C : precategory_ob_mor } :
        C ->  C -> hSet := pr2 C.
 
 (** We introduce notation for morphisms *)
-(** in order for this notation not to pollute subsequent files, 
+(** in order for this notation not to pollute subsequent files,
     we define this notation locally *)
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
 (** ** [precategory_data] *)
-(** data of a precategory : 
+(** data of a precategory :
     - objects
     - morphisms
     - identity morphisms
@@ -63,7 +63,7 @@ Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 *)
 
 Definition precategory_id_comp (C : precategory_ob_mor) :=
-     dirprod (forall c : C, c --> c) (* identities *) 
+     dirprod (forall c : C, c --> c) (* identities *)
              (forall a b c : C,
                  a --> b -> b --> c -> a --> c).
 
@@ -77,32 +77,32 @@ Definition precategory_data_pair (C : precategory_ob_mor)
 
 Definition precategory_ob_mor_from_precategory_data (C : precategory_data) :
      precategory_ob_mor := pr1 C.
-Coercion precategory_ob_mor_from_precategory_data : 
+Coercion precategory_ob_mor_from_precategory_data :
   precategory_data >-> precategory_ob_mor.
 
 Definition identity { C : precategory_data } :
-    forall c : C, c --> c := 
+    forall c : C, c --> c :=
          pr1 (pr2 C).
 
-Definition compose { C : precategory_data } 
-  { a b c : C } : 
+Definition compose { C : precategory_data }
+  { a b c : C } :
     a --> b -> b --> c -> a --> c := pr2 (pr2 C) a b c.
 
 Local Notation "f ;; g" := (compose f g)(at level 50).
 
 
 (** ** Axioms of a precategory *)
-(** 
-        - identity is left and right neutral for composition 
+(**
+        - identity is left and right neutral for composition
         - composition is associative
 *)
 
-Definition is_precategory (C : precategory_data) := 
+Definition is_precategory (C : precategory_data) :=
    dirprod (dirprod (forall (a b : C) (f : a --> b),
                          identity a ;; f = f)
                      (forall (a b : C) (f : a --> b),
                          f ;; identity b = f))
-            (forall (a b c d : C) 
+            (forall (a b c d : C)
                     (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h).
 
@@ -115,11 +115,11 @@ Qed.
 
 Definition precategory := total2 is_precategory.
 
-Definition precategory_data_from_precategory (C : precategory) : 
+Definition precategory_data_from_precategory (C : precategory) :
        precategory_data := pr1 C.
 Coercion precategory_data_from_precategory : precategory >-> precategory_data.
 
-Lemma eq_precategory : forall C D : precategory, 
+Lemma eq_precategory : forall C D : precategory,
     precategory_data_from_precategory C = precategory_data_from_precategory D -> C = D.
 Proof.
   intros C D H.
@@ -127,8 +127,8 @@ Proof.
   - apply isaprop_is_precategory.
   - apply H.
 Defined.
-  
-Definition id_left (C : precategory) : 
+
+Definition id_left (C : precategory) :
    forall (a b : C) (f : a --> b),
            identity a ;; f = f := pr1 (pr1 (pr2 C)).
 
@@ -136,8 +136,8 @@ Definition id_right (C : precategory) :
    forall (a b : C) (f : a --> b),
            f ;; identity b = f := pr2 (pr1 (pr2 C)).
 
-Definition assoc (C : precategory) : 
-   forall (a b c d : C) 
+Definition assoc (C : precategory) :
+   forall (a b c d : C)
           (f : a --> b)(g : b --> c) (h : c --> d),
                      f ;; (g ;; h) = (f ;; g) ;; h := pr2 (pr2 C).
 
@@ -191,7 +191,7 @@ Qed.
 (** ** Definition of isomorphisms *)
 
 Definition is_inverse_in_precat {C : precategory} {a b : C}
-  (f : a --> b) (g : b --> a) := 
+  (f : a --> b) (g : b --> a) :=
   dirprod (f ;; g = identity a)
           (g ;; f = identity b).
 
@@ -199,7 +199,7 @@ Lemma isaprop_is_inverse_in_precat (C : precategory) (a b : ob C)
    (f : a --> b) (g : b --> a) : isaprop (is_inverse_in_precat f g).
 Proof.
   admit.
-(*  
+(*
   apply isapropdirprod.
   apply (pr2 (a --> a)).
   apply (pr2 (b --> b)).
@@ -255,7 +255,7 @@ admit.
 *)
 Defined.
 
-Definition morphism_from_iso (C : precategory)(a b : ob C) 
+Definition morphism_from_iso (C : precategory)(a b : ob C)
    (f : iso a b) : a --> b := pr1 f.
 Coercion morphism_from_iso : iso >-> hSetpr1.
 
@@ -321,7 +321,7 @@ Lemma iso_inv_on_right (C : precategory) (a b c: ob C)
   (f : iso a  b) (g : b --> c) (h : a --> c) (H : h = f;;g) :
      inv_from_iso f ;; h = g.
 Proof.
-  assert (H2 : inv_from_iso f;; h = 
+  assert (H2 : inv_from_iso f;; h =
                   inv_from_iso f;; (f ;; g)).
   apply maponpaths; assumption.
   rewrite assoc in H2.
@@ -334,7 +334,7 @@ Lemma iso_inv_on_left (C : precategory) (a b c: ob C)
   (f : a --> b) (g : iso b c) (h : a --> c) (H : h = f;;g) :
      f = h ;; inv_from_iso g.
 Proof.
-  assert (H2 : h ;; inv_from_iso g = 
+  assert (H2 : h ;; inv_from_iso g =
                          (f;; g) ;; inv_from_iso g).
     rewrite H. apply idpath.
   rewrite <- assoc in H2.
@@ -349,7 +349,7 @@ Qed.
 (** Stability under composition, inverses etc *)
 
 Lemma are_inverse_comp_of_inverses (C : precategory) (a b c : C)
-     (f : iso a b) (g : iso b c) :  
+     (f : iso a b) (g : iso b c) :
   is_inverse_in_precat (f;; g) (inv_from_iso g;; inv_from_iso f).
 Proof.
   simpl; split; simpl;
@@ -371,7 +371,7 @@ Proof.
   rewrite id_right.
   rewrite (pr2 Hg).
   apply idpath.
-Qed. 
+Qed.
 
 
 Lemma is_iso_comp_of_isos {C : precategory} {a b c : ob C}
@@ -410,7 +410,7 @@ Lemma iso_inv_of_iso_comp (C : precategory) (a b c : ob C)
    (f : iso a b) (g : iso b c) :
    iso_inv_from_iso (iso_comp f g) = iso_comp (iso_inv_from_iso g) (iso_inv_from_iso f).
 Proof.
-  apply eq_iso. 
+  apply eq_iso.
   reflexivity.
 Qed.
 
@@ -423,7 +423,7 @@ Qed.
 
 
 Lemma iso_inv_iso_inv (C : precategory) (a b : ob C)
-   (f : iso a b) : 
+   (f : iso a b) :
      iso_inv_from_iso (iso_inv_from_iso f) = f.
 Proof.
   apply eq_iso.
@@ -445,9 +445,9 @@ Proof.
   rewrite id_left.
   apply idpath.
 Qed.
-  
+
 Lemma post_comp_with_iso_is_inj (C : precategory) (b c : ob C)
-     (h : b --> c) (H : is_isomorphism h) 
+     (h : b --> c) (H : is_isomorphism h)
    (a : ob C) (f g : a --> b) : f ;; h = g ;; h -> f = g.
 Proof.
   intro HH.
@@ -467,12 +467,12 @@ Qed.
 
 Lemma iso_comp_right_isweq {C:precategory} {a b:ob C} (h:iso a b) (c:C) :
   isweq (fun f : b --> c => h ;; f).
-Proof. 
+Proof.
   intros. apply (gradth _ (fun g => inv_from_iso h ;; g)).
        { intros f. refine (_ @ maponpaths (fun m => m ;; f) (pr2 (pr2 (pr2 h))) @ _).
          { apply assoc. } { apply id_left. } }
        { intros g. refine (_ @ maponpaths (fun m => m ;; g) (pr1 (pr2 (pr2 h))) @ _).
-         { apply assoc. } { apply id_left. } } 
+         { apply assoc. } { apply id_left. } }
 Qed.
 
 
@@ -488,15 +488,15 @@ Proof.
   destruct H.
   exact (identity_iso a).
 Defined.
-      
+
 (* use eta expanded version to force printing of object arguments *)
 Definition is_category (C : precategory) := forall (a b : ob C),
     isweq (fun p : a = b => idtoiso p).
 
 Lemma eq_idtoiso_idtomor {C:precategory} (a b:ob C) (e:a = b) :
     pr1 (idtoiso e) = idtomor _ _ e.
-Proof. 
-  destruct e; reflexivity. 
+Proof.
+  destruct e; reflexivity.
 Defined.
 
 Lemma isaprop_is_category (C : precategory) : isaprop (is_category C).
@@ -513,7 +513,7 @@ Definition category := total2 (fun C : precategory => is_category C).
 Definition precat_from_cat (C : category) : precategory := pr1 C.
 Coercion precat_from_cat : category >-> precategory.
 
-Lemma category_has_groupoid_ob (C : category) : 
+Lemma category_has_groupoid_ob (C : category) :
   isofhlevel 3 (ob C).
 Proof.
   change (isofhlevel 3 C) with
@@ -522,7 +522,7 @@ Proof.
   apply (isofhlevelweqb _ (tpair _ _ (pr2 C a b))).
   apply isaset_iso.
 Qed.
-  
+
 
 (** ** Definition of [isotoid] *)
 
@@ -562,7 +562,7 @@ Proof.
 Qed.
 
 Lemma idtoiso_postcompose_iso (C : precategory) (a b b' : ob C)
-  (p : b = b') (f : iso a b) : 
+  (p : b = b') (f : iso a b) :
     iso_comp f (idtoiso p) = transportf (fun b => iso a b) p f.
 Proof.
   destruct p.
@@ -573,7 +573,7 @@ Qed.
 
 
 Lemma idtoiso_precompose (C : precategory) (a a' b : ob C)
-  (p : a = a') (f : a --> b) : 
+  (p : a = a') (f : a --> b) :
       (idtoiso (!p)) ;; f = transportf (fun a => a --> b) p f.
 Proof.
   destruct p.
@@ -581,7 +581,7 @@ Proof.
 Qed.
 
 Lemma idtoiso_precompose_iso (C : precategory) (a a' b : ob C)
-  (p : a = a') (f : iso a b) : 
+  (p : a = a') (f : iso a b) :
       iso_comp (idtoiso (!p)) f = transportf (fun a => iso a b) p f.
 Proof.
   destruct p.
@@ -592,8 +592,8 @@ Qed.
 
 
 
-Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C) 
-  (p : a = a') (q : b = b')  (f : a --> b) : 
+Lemma double_transport_idtoiso (C : precategory) (a a' b b' : ob C)
+  (p : a = a') (q : b = b')  (f : a --> b) :
   double_transport p q f = inv_from_iso (idtoiso p) ;; f ;; idtoiso q.
 Proof.
   destruct p.
@@ -606,7 +606,7 @@ Qed.
 Lemma idtoiso_inv (C : precategory) (a a' : ob C)
   (p : a = a') : idtoiso (!p) = iso_inv_from_iso (idtoiso p).
 Proof.
-  destruct p. 
+  destruct p.
   apply idpath.
 Qed.
 
@@ -618,7 +618,7 @@ Proof.
   destruct p.
   destruct q.
   apply eq_iso.
-  simpl;  
+  simpl;
   rewrite id_left.
   apply idpath.
 Qed.
@@ -668,10 +668,10 @@ Proof.
   rewrite idtoiso_isotoid.
   apply idpath.
 Qed.
-  
 
-Lemma transportf_isotoid (C : precategory) (H : is_category C) 
-   (a a' b : ob C) (p : iso a a') (f : a --> b) : 
+
+Lemma transportf_isotoid (C : precategory) (H : is_category C)
+   (a a' b : ob C) (p : iso a a') (f : a --> b) :
  transportf (fun a0 : C => a0 --> b) (isotoid C H p) f = inv_from_iso p ;; f.
 Proof.
   rewrite <- idtoiso_precompose.
@@ -680,7 +680,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid_dep (C : precategory) 
+Lemma transportf_isotoid_dep (C : precategory)
    (a a' : C) (p : a = a') (f : forall c, a --> c) :
  transportf (fun x : C => forall c, x --> c) p f = fun c => idtoiso (!p) ;; f c.
 Proof.
@@ -692,7 +692,7 @@ Proof.
   apply idpath.
 Qed.
 
-Lemma transportf_isotoid_dep' (J C : precategory) 
+Lemma transportf_isotoid_dep' (J C : precategory)
   (F : J -> C)
    (a a' : C) (p : a = a') (f : forall c, a --> F c) :
  transportf (fun x : C => forall c, x --> F c) p f = fun c => idtoiso (!p) ;; f c.
@@ -708,12 +708,12 @@ Defined.
 (** Of course we later want SETS of objects, rather than types,
     but the construction can already be specified.
 *)
-       
+
 Definition total_morphisms (C : precategory_ob_mor) := total2 (
    fun ab : dirprod (ob C)(ob C) =>
         precategory_morphisms (pr1 ab) (pr2 ab)).
 
-Lemma isaset_setcategory_total_morphisms (C : setcategory) : 
+Lemma isaset_setcategory_total_morphisms (C : setcategory) :
    isaset (total_morphisms C).
 Proof.
   change isaset with (isofhlevel 2).
@@ -727,19 +727,19 @@ Qed.
 Definition setcategory_total_morphisms_set (C : setcategory) : hSet :=
     hSetpair _ (isaset_setcategory_total_morphisms C).
 
-Definition precategory_source (C : precategory_ob_mor) : 
-     total_morphisms C -> ob C := 
+Definition precategory_source (C : precategory_ob_mor) :
+     total_morphisms C -> ob C :=
      fun abf => pr1 (pr1 abf).
 
-Definition precategory_target (C : precategory_ob_mor) : 
-     total_morphisms C -> ob C := 
+Definition precategory_target (C : precategory_ob_mor) :
+     total_morphisms C -> ob C :=
      fun abf => pr2 (pr1 abf).
 
-Definition precategory_total_id (C : precategory_data) : 
+Definition precategory_total_id (C : precategory_data) :
       ob C -> total_morphisms C :=
       fun c => tpair _ (dirprodpair c c) (identity c).
 
-Definition precategory_total_comp'' (C : precategory_data) : 
+Definition precategory_total_comp'' (C : precategory_data) :
       forall f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
          total_morphisms C.
@@ -748,19 +748,16 @@ Proof.
   destruct f as [[a b] f]. simpl in *.
   destruct g as [[b' c] g]. simpl in *.
   unfold precategory_target in e; simpl in e.
-  unfold precategory_source in e; simpl in e. 
+  unfold precategory_source in e; simpl in e.
   simpl.
   exists (dirprodpair a c). simpl.
   exact ((f ;; idtomor _ _ e) ;; g).
 Defined.
 
-Definition precategory_total_comp (C : precategory_data) : 
+Definition precategory_total_comp (C : precategory_data) :
       forall f g : total_morphisms C,
         precategory_target C f = precategory_source C g ->
-         total_morphisms C := 
-  fun f g e => 
+         total_morphisms C :=
+  fun f g e =>
      tpair _ (dirprodpair (pr1 (pr1 f))(pr2 (pr1 g)))
         ((pr2 f ;; idtomor _ _ e) ;; pr2 g).
-
-
-
