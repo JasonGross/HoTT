@@ -1,4 +1,5 @@
 (* -*- mode: coq; mode: visual-line -*-  *)
+Require Export Coq.Init.Notations Coq.Init.Specif Coq.Init.Datatypes Coq.Init.Logic Coq.Init.Tactics.
 
 (** * Basic definitions of homotopy type theory, particularly the groupoid structure of identity types. *)
 

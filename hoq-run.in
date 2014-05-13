@@ -59,4 +59,4 @@ then
   exit 1
 fi
 
-exec "$COQ_PROG" -no-native-compiler -coqlib "$COQLIB" -R "$HOTTLIB" HoTT -indices-matter "$@"
+exec "$COQ_PROG" -no-native-compiler -nois -R "$COQLIB/plugins" Coq -R "$COQLIB/theories" Coq -R "$HOTTLIB" HoTT -indices-matter "$@"
