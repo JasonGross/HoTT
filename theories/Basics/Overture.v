@@ -206,21 +206,8 @@ Defined.
 (** We bind [path_scope] to [paths] so that when we are constructing arguments to things like [concat], we automatically are in [path_scope]. *)
 Bind Scope path_scope with paths.
 
-(** Ocassionally, we will want to use a version of [concat] that reduces judgmentally on one side or the other, for example, to not need to transport across functional extensionality when we can let the conversion machinery handle the proof for us. *)
-Definition concat_reduce_left {A x y z} (p : x = y :> A) : y = z -> x = z
-  := match p in (_ = y) return (y = z -> x = z) with
-       | idpath => fun q => q
-     end.
-
-Definition concat_reduce_right {A x y z} (p : x = y :> A) (q : y = z) : x = z
-  := match q in (_ = z) return (x = y -> x = z) with
-       | idpath => fun p => p
-     end p.
-
 (** See above for the meaning of [simpl nomatch]. *)
 Arguments concat {A x y z} p q : simpl nomatch.
-Arguments concat_reduce_left {A x y z} p q : simpl nomatch.
-Arguments concat_reduce_right {A x y z} p q : simpl nomatch.
 
 Instance transitive_paths {A} : Transitive (@paths A) | 0 := @concat A.
 
