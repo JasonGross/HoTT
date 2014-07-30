@@ -40,7 +40,7 @@ Section comma.
 
   Definition comma_category_projection_functor_object_of
              (ST : object ((A -> C)^op * (B -> C)))
-  : Cat / !((A * B; PAB) : Cat).
+  : Cat / (A * B; PAB).
   Proof.
     exists (Datatypes.fst ST / Datatypes.snd ST; P_comma _ _) (center _).
     exact (comma_category_projection (Datatypes.fst ST) (Datatypes.snd ST)).
@@ -48,7 +48,7 @@ Section comma.
 
   Definition comma_category_projection_functor_morphism_of
              s d (m : morphism ((A -> C)^op * (B -> C)) s d)
-  : morphism (Cat / !((A * B; PAB) : Cat))
+  : morphism (Cat / (A * B; PAB))
              (comma_category_projection_functor_object_of s)
              (comma_category_projection_functor_object_of d).
   Proof.
@@ -110,9 +110,9 @@ Section comma.
 
   Definition comma_category_projection_functor
   : Functor ((A -> C)^op * (B -> C))
-            (Cat / !((A * B; PAB) : Cat))
+            (Cat / (A * B; PAB))
     := Build_Functor ((A -> C)^op * (B -> C))
-                     (Cat / !((A * B; PAB) : Cat))
+                     (Cat / (A * B; PAB))
                      comma_category_projection_functor_object_of
                      comma_category_projection_functor_morphism_of
                      comma_category_projection_functor_composition_of
@@ -140,8 +140,11 @@ Section slice_category_projection_functor.
   Local Open Scope category_scope.
 
   (** ** Functor [(C → D)ᵒᵖ → D → (cat / C)] *)
+  Goal True.
+  pose (object (@functor_category H ((@functor_category H C D)^op) (@functor_category H D (Cat / (C; PC))))).
+  pose (object (((C -> D)^op) -> (D -> (Cat / (C; PC))))).
   Definition slice_category_projection_functor
-  : object (((C -> D)^op) -> (D -> (Cat / ((C; PC) : Cat)))).
+  : object (((C -> D)^op) -> (D -> (Cat / (C; PC)))).
   Proof.
     refine ((ExponentialLaws.Law4.Functors.inverse _ _ _) _).
     refine (_ o (Functor.Identity.identity (C -> D)^op,

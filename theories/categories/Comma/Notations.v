@@ -1,4 +1,4 @@
 (** * Notations for comma categories *)
 Require Comma.Core.
 
-Include Comma.Core.CommaCoreNotations.
+Export Comma.Core.CommaCoreNotations.

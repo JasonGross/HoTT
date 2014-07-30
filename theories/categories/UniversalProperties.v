@@ -287,7 +287,7 @@ Section UniversalMorphism.
             (CommaCategory.b (Ap : object (U / X)))
             (CommaCategory.a (Ap : object (U / X)))
             (CommaCategory.f (Ap : object (U / X)))
-          : object ((X : object C^op) / U^op)).
+          : object ((X : object C^op) / U^op%functor)).
 
     Definition IsTerminalMorphism (Ap : object (U / X)) : Type
       := @IsInitialMorphism

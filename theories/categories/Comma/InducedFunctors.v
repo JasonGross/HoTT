@@ -64,8 +64,9 @@ Section comma_category_induced_functor.
       ).
   Defined.
 
-  Definition comma_category_induced_functor_morphism_of s d m s0 d0
-             (m0 : morphism (fst s / snd s) s0 d0)
+  Definition comma_category_induced_functor_morphism_of
+             s d (m : morphism ((A -> C)^op * (B -> C)) s d)
+             s0 d0 (m0 : morphism (fst s / snd s) s0 d0)
   : morphism (fst d / snd d)
              (@comma_category_induced_functor_object_of s d m s0)
              (@comma_category_induced_functor_object_of s d m d0).

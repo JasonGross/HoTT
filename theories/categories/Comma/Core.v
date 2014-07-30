@@ -280,17 +280,21 @@ Section arrow_category.
   Definition arrow_category := comma_category (Functor.Identity.identity C) (Functor.Identity.identity C).
 End arrow_category.
 
-Definition CC_Functor' (C : PreCategory) (D : PreCategory) := Functor C D.
-Coercion cc_functor_from_terminal' (C : PreCategory) (x : C) : CC_Functor' _ C
-  := Functors.from_terminal C x.
-Coercion cc_identity_functor' (C : PreCategory) : CC_Functor' C C
-  := 1%functor.
-Global Arguments CC_Functor' / .
-Global Arguments cc_functor_from_terminal' / .
-Global Arguments cc_identity_functor' / .
+(** We define a notation for comma categories using Ltac *)
+Ltac comma_category S T :=
+  match constr:(Set) with
+    | _ => constr:(@slice_category_over (S : PreCategory) (T : Category.Core.object S))
+    | _ => constr:(@coslice_category_over (T : PreCategory) (S : Category.Core.object T))
+    | _ => constr:(coslice_category (S : Category.Core.object _) (T : Functor _ _))
+    | _ => constr:(slice_category (T : Category.Core.object _) (S : Functor _ _))
+    | _ => constr:(comma_category (S : Functor _ _) (T : Functor _ _))
+    | _ => let ST := type of S in
+           let TT := type of T in
+           fail 1 "Could not recognize" "(" S "/" T ")" "as a comma category (could not recognize" "(" ST "/" TT ")" "as one of" "(PreCategory / object)," "(object / PreCategory)," "(object / Functor)," "(Functor / object)," "(Functor / Functor)"
+  end.
 
 Module Export CommaCoreNotations.
-  (** We really want to use infix [↓] for comma categories, but that's unicode.  Infix [,] might also be reasonable, but I can't seem to get it to work without destroying the [(_, _)] notation for ordered pairs.  So I settle for the ugly ASCII rendition [/] of [↓]. *)
+  (** We really want to use infix [↓] for comma categories, but that's unicode.  So we settle for [/]. *)
   (** Set some notations for printing *)
   Notation "C / a" := (@slice_category_over C a) : category_scope.
   Notation "a \ C" := (@coslice_category_over C a) (at level 40, left associativity) : category_scope.
@@ -298,7 +302,7 @@ Module Export CommaCoreNotations.
   Notation "x / F" := (coslice_category x F) : category_scope.
   Notation "F / x" := (slice_category x F) : category_scope.
   Notation "S / T" := (comma_category S T) : category_scope.
-  (** Set the notation for parsing; coercions will automatically decide which of the arguments are functors and which are objects, i.e., functors from the terminal category. *)
-  Notation "S / T" := (comma_category (S : CC_Functor' _ _)
-                                      (T : CC_Functor' _ _)) : category_scope.
+  (** Set the notation for parsing, which just picks one of the above notations. *)
+  Notation build_comma_local S T := $(let c := comma_category (S%functor) (T%functor) in exact c)$ (only parsing).
+  Notation "S / T" := (build_comma_local S%functor T%functor) (only parsing) : category_scope.
 End CommaCoreNotations.
