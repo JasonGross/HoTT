@@ -1,6 +1,6 @@
 (** * Classification of path spaces of functors *)
 Require Import Category.Core Functor.Core.
-Require Import HProp HoTT.Tactics Equivalences PathGroupoids types.Sigma Trunc types.Record.
+Require Import HProp HoTT.Tactics Equivalences PathGroupoids types.Sigma Trunc types.Record HoTT.types.Paths.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -46,19 +46,56 @@ Section path_functor.
 
   (** We could just go prove that the path space of [functor_sig_T] is equivalent to [path_functor'_T], but unification is far too slow to do this effectively.  So instead we explicitly classify [path_functor'_T], and provide an equivalence between it and the path space of [Functor C D]. *)
 
-  (**
-<<
   Definition equiv_path_functor'_sig_sig (F G : Functor C D)
   : path_functor'_T F G <~> (@equiv_inv _ _ _ equiv_sig_functor F
                               = @equiv_inv _ _ _ equiv_sig_functor G).
   Proof.
     etransitivity; [ | by apply equiv_path_sigma ].
-    eapply @equiv_functor_sigma.
     repeat match goal with
-             | [ |- appcontext[(@equiv_inv ?A ?B ?f ?H ?F).1] ]
-               => change ((@equiv_inv A B f H F).1) with (object_of F)
+             | [ |- appcontext[?from'.1] ]
+               => let from := constr:(from'.1) in
+                  let to := (eval simpl in from) in
+                  progress change from with to
+             | [ |- appcontext[?from'.2] ]
+               => let from := constr:(from'.2) in
+                  let to := (eval simpl in from) in
+                  progress change from with to
            end.
+    eapply @equiv_functor_sigma.
     Time exact (isequiv_idmap (object_of F = object_of G)). (* 13.411 secs *)
+    intro a.
+    refine (equiv_isequiv _ _ _).
+    progress repeat match goal with
+                      | [ |- context[(morphism_of ?F; ?x)] ] => generalize x; generalize dependent (morphism_of F)
+                      | _ => progress path_induction
+                      | _ => progress simpl in *
+                    end.
+    apply symmetry.
+    SearchAbout IsEquiv (ap pr1).
+    lazymatch goal with
+      | [ |- existT ?P ?x ?y = existT ?P' ?x' ?y' <~> ?x = ?x' ] => change ((existT P x y = existT P' x' y')
+                                                                              <~> (existT P x y).1 = (existT P' x' y').1);
+                                                                   exists (ap pr1)
+    end.
+
+    eapply @isequiv_ap.
+    eapply @isequiv_pr1_contr.
+    intros.
+    eapply @trunc_sigma.
+
+    SearchAbout IsTrunc sigT.
+    SearchAbout IsEquiv pr1.
+    eapply @isequiv_path_sigma_hprop.
+
+    refine (isequiv_ap _ _
+           ).
+    SearchAbout IsEquiv ap.
+    exists (ap pr1).
+    SearchAbout IsEquiv pr1.
+    destruct a.
+    simpl.
+    Set Printing Implicit.
+    SearchAbout transport Equiv.
   Abort.
 >>
    *)
@@ -89,6 +126,8 @@ Section path_functor.
     rewrite !(contr idpath).
     reflexivity.
   Qed.
+
+  Global Opaque path_functor'_sig.
 
   (** ** Equality of functors gives rise to an inhabitant of the path-classifying-type *)
   Definition path_functor'_sig_inv (F G : Functor C D) : F = G -> path_functor'_T F G
