@@ -29,6 +29,18 @@ Section lax_comma_category.
   Set Printing Implicit.
   Set Printing Universes.
   Definition foo := @comma_category A B cat S.
+  Timeout 5 Definition bar := foo T. (* Finished transaction in 11.749 secs (11.736u,0.011s) (successful) *)
+  Goal True.
+  pose foo.
+  clear S' T'.
+  unfold sub_pre_cat in p.
+  cbv beta in p.
+  Unset Printing Universes.
+  hnf in p.
+  unfold cat in p.
+  lazy in p.
+  Time let x := uconstr:(foo T) in let y := type_term x in idtac.
+  Time let x := constr:(foo T) in idtac.
   Time Definition bar := foo T. (* Finished transaction in 11.749 secs (11.736u,0.011s) (successful) *)
 
 
