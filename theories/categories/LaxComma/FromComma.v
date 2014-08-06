@@ -3,6 +3,8 @@ Require Import Category.Core Functor.Core NaturalTransformation.Core.
 Require Import Pseudofunctor.Core Pseudofunctor.FromFunctor.
 Require Import Comma.Core LaxComma.Core.
 Require Import Cat.Core.
+Require Import FunctorCategory.Core.
+Require Import Category.Morphisms FunctorCategory.Morphisms.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -14,46 +16,51 @@ Local Open Scope morphism_scope.
 Local Open Scope category_scope.
 
 Section lax_comma_category.
+  Universe i0 i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20.
+
   Context `{Funext}.
-  Variable P : PreCategory -> Type.
+  Variable P : PreCategory@{i3 i2} -> Type@{i1}.
   Context `{HF : forall C D, P C -> P D -> IsHSet (Functor C D)}.
-  Local Notation cat := (@sub_pre_cat _ P HF).
+  Local Notation cat := (@sub_pre_cat@{i0 i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20} _ P HF).
+
   Variable A : PreCategory.
   Variable B : PreCategory.
   Variable S : Functor A cat.
   Variable T : Functor B cat.
 
-  Let S' := (S : CC_Functor' _ _).
-  Let T' := (T : CC_Functor' _ _).
-  Locate "/".
-  Set Printing Implicit.
-  Set Printing Universes.
-  Definition foo := @comma_category A B cat S.
-  Timeout 5 Definition bar := foo T. (* Finished transaction in 11.749 secs (11.736u,0.011s) (successful) *)
-  Goal True.
-  pose foo.
-  clear S' T'.
-  unfold sub_pre_cat in p.
-  cbv beta in p.
-  Unset Printing Universes.
-  hnf in p.
-  unfold cat in p.
-  lazy in p.
-  Time let x := uconstr:(foo T) in let y := type_term x in idtac.
-  Time let x := constr:(foo T) in idtac.
-  Time Definition bar := foo T. (* Finished transaction in 11.749 secs (11.736u,0.011s) (successful) *)
+  Local Notation S' := ((S : FunctorToCat) : Pseudofunctor A) (only parsing).
+  Local Notation T' := ((T : FunctorToCat) : Pseudofunctor B) (only parsing).
 
+  Let is_hset : forall a b, IsHSet (Functor (p_object_of S' a) (p_object_of T' b))
+    := fun a b => HF (pr2 (S a)) (pr2 (T b)).
+  Local Existing Instance is_hset.
 
+  Definition from_comma_object_of (x : object (S / T)) : object (S' // T')
+    := CoreLaws.LaxCommaCategory.Build_object S' T' (CommaCategory.a x) (CommaCategory.b x) (CommaCategory.f x).
 
+  Definition from_comma_morphism_of s d (m : morphism (S / T) s d)
+  : morphism (S' // T') (from_comma_object_of s) (from_comma_object_of d)
+    := CoreLaws.LaxCommaCategory.Build_morphism
+         (from_comma_object_of s) (from_comma_object_of d)
+         (CommaCategory.g m) (CommaCategory.h m)
+         (idtoiso (CommaCategory.p m) : morphism (_ -> _) _ _).
 
-  Check foo.
-  Print foo.
+  Definition from_comma_identity_of (x : object (S / T))
+  : from_comma_morphism_of (Category.Core.identity x) = Category.Core.identity _.
+  Proof.
+    simpl.
+    refine (CoreLaws.LaxCommaCategory.path_morphism _ _ _ _ _); simpl.
+    all:try reflexivity.
+    simpl.
+    := CoreLaws.LaxCommaCategory.Build_morphism
+         (from_comma_object_of s) (from_comma_object_of d)
+         (CommaCategory.g m) (CommaCategory.h m)
+         (idtoiso (CommaCategory.p m) : morphism (_ -> _) _ _).
+    simpl in *.
 
-
-  Check comma_category S' T'.
-  Check (S / T).
-
-  Definition from_functor_object_of (x : object (S / T)) : type.
+    simpl.
+    Print CommaCategory.ob
+  : object (((S : FunctorToCat) : Pseudofunctor A) // ((T : FunctorToCat) : Pseudofunctor B)).
   Check ((S : FunctorToCat) : Pseudofunctor A).
   Context `{forall a b, IsHSet (Functor (S a) (T b))}.
 
