@@ -14,6 +14,8 @@ Section functorial_composition.
   Variable C : PreCategory.
   Variable D : PreCategory.
   Variable E : PreCategory.
+  Context `{forall s d, IsHSet (morphism D s d)}
+          `{forall s d, IsHSet (morphism E s d)}.
 
   Local Open Scope natural_transformation_scope.
 

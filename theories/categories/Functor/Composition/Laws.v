@@ -21,7 +21,7 @@ Section identity_lemmas.
   (** If we had that [match (p : a = b) in (_ = y) return (a = y) with idpath => idpath end ≡ p] (a form of eta for paths), this would be judgemental. *)
   Lemma left_identity (F : Functor D C) : identity _ o F = F.
   Proof.
-    destruct F; expand; f_ap; repeat (apply path_forall; intro);
+    destruct F; expand; f_ap; repeat (apply path_forall; intro); unfold ap;
     match goal with
       | [ |- appcontext[match ?e with idpath => _ end] ] => destruct e
     end;
@@ -31,7 +31,7 @@ Section identity_lemmas.
   (** ** right identity : [F ∘ 1 = F] *)
   Lemma right_identity (F : Functor C D) : F o identity _ = F.
   Proof.
-    destruct F; expand; f_ap; repeat (apply path_forall; intro);
+    destruct F; expand; f_ap; repeat (apply path_forall; intro); unfold ap, transport;
     match goal with
       | [ |- appcontext[match ?e with idpath => _ end] ] => destruct e
     end;
@@ -67,7 +67,7 @@ Section composition_lemmas.
         (F : Functor B C) (G : Functor C D) (H : Functor D E)
   : (H o G) o F = H o (G o F).
   Proof.
-    destruct F; expand; f_ap; repeat (apply path_forall; intro);
+    destruct F; expand; f_ap; repeat (apply path_forall; intro); unfold ap, transport;
     repeat match goal with
       | [ |- appcontext[match ?e with idpath => _ end] ] => destruct e
     end;

@@ -38,6 +38,7 @@ Section composition.
   Global Instance isisomorphism_compose
          `(T' : @NaturalTransformation C D F' F'')
          `(T : @NaturalTransformation C D F F')
+         `{forall s d, IsHSet (morphism D s d)}
          `{@IsIsomorphism (C -> D) F' F'' T'}
          `{@IsIsomorphism (C -> D) F F' T}
   : @IsIsomorphism (C -> D) F F'' (T' o T)%natural_transformation
@@ -48,6 +49,8 @@ Section composition.
          (F : Functor D E)
          (G G' : Functor C D)
          (T : NaturalTransformation G G')
+         `{forall s d, IsHSet (morphism D s d)}
+         `{forall s d, IsHSet (morphism E s d)}
          `{@IsIsomorphism (C -> D) G G' T}
   : @IsIsomorphism (C -> E) (F o G)%functor (F o G')%functor (whisker_l F T).
   Proof.
@@ -60,6 +63,7 @@ Section composition.
          (F F' : Functor D E)
          (T : NaturalTransformation F F')
          (G : Functor C D)
+         `{forall s d, IsHSet (morphism E s d)}
          `{@IsIsomorphism (D -> E) F F' T}
   : @IsIsomorphism (C -> E) (F o G)%functor (F' o G)%functor (whisker_r T G).
   Proof.
@@ -70,6 +74,7 @@ Section composition.
   (** ** action of [idtoiso] on objects *)
   Definition idtoiso_components_of C D
              (F G : Functor C D)
+             `{forall s d, IsHSet (morphism D s d)}
              (T' : F = G)
              x
   : (Category.Morphisms.idtoiso (_ -> _) T' : morphism _ _ _) x
@@ -81,6 +86,7 @@ Section composition.
 
   (** ** [idtoiso] respsects composition *)
   Definition idtoiso_compose C D
+         `{forall s d, IsHSet (morphism D s d)}
          (F F' F'' : Functor C D)
          (T' : F' = F'')
          (T : F = F')
@@ -93,6 +99,8 @@ Section composition.
 
   (** ** left whiskering respects [idtoiso] *)
   Definition idtoiso_whisker_l C D E
+         `{forall s d, IsHSet (morphism D s d)}
+         `{forall s d, IsHSet (morphism E s d)}
          (F : Functor D E)
          (G G' : Functor C D)
          (T : G = G')
@@ -104,6 +112,8 @@ Section composition.
 
   (** ** right whiskering respects [idtoiso] *)
   Definition idtoiso_whisker_r C D E
+         `{forall s d, IsHSet (morphism D s d)}
+         `{forall s d, IsHSet (morphism E s d)}
          (F F' : Functor D E)
          (T : F = F')
          (G : Functor C D)

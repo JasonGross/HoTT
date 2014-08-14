@@ -11,17 +11,18 @@ Local Open Scope category_scope.
 Local Open Scope morphism_scope.
 
 (** ** Natural Isomorphisms - isomorphisms in a functor category *)
-Definition NaturalIsomorphism `{Funext} (C D : PreCategory) F G :=
+Definition NaturalIsomorphism `{Funext} (C D : PreCategory) `{forall s d, IsHSet (morphism D s d)}
+           F G :=
   @Isomorphic (C -> D) F G.
 
-Arguments NaturalIsomorphism {_} [C D] F G / .
+Arguments NaturalIsomorphism {_} [C D] {_} F G / .
 
 Global Instance reflexive_natural_isomorphism `{Funext} C D
-: Reflexive (@NaturalIsomorphism _ C D) | 0
+: Reflexive (@NaturalIsomorphism _ C D H') | 0
   := _.
 
-Coercion natural_transformation_of_natural_isomorphism `{Funext} C D F G
-         (T : @NaturalIsomorphism _ C D F G)
+Coercion natural_transformation_of_natural_isomorphism `{Funext} C D `{forall s d, IsHSet (morphism D s d)} F G
+         (T : @NaturalIsomorphism _ C D _ F G)
 : NaturalTransformation F G
   := T : morphism _ _ _.
 
@@ -29,6 +30,7 @@ Local Infix "<~=~>" := NaturalIsomorphism : natural_transformation_scope.
 
 (** ** If [T] is an isomorphism, then so is [T x] for any [x] *)
 Definition isisomorphism_components_of `{Funext}
+           `{forall s d, IsHSet (morphism D s d)}
            `{@IsIsomorphism (C -> D) F G T} x
 : IsIsomorphism (T x).
 Proof.
@@ -60,6 +62,7 @@ Defined.
 (** ** If [T x] is an isomorphism for all [x], then so is [T] *)
 Definition isisomorphism_natural_transformation `{Funext}
            C D F G (T : NaturalTransformation F G)
+           `{forall s d, IsHSet (morphism D s d)}
            `{forall x, IsIsomorphism (T x)}
 : @IsIsomorphism (C -> D) F G T.
 Proof.
@@ -78,6 +81,7 @@ Section idtoiso.
   Context `{Funext}.
   Variable C : PreCategory.
   Variable D : PreCategory.
+  Context `{forall s d, IsHSet (morphism D s d)}.
 
   Definition idtoiso_natural_transformation
              (F G : object (C -> D))
@@ -87,11 +91,11 @@ Section idtoiso.
     refine (Build_NaturalTransformation'
               F G
               (fun x => idtoiso _ (ap10 (ap object_of T) x))
-              _
+              (*_*)
               _);
     intros; case T; simpl;
     [ exact (left_identity _ _ _ _ @ (right_identity _ _ _ _)^)
-    | exact (right_identity _ _ _ _ @ (left_identity _ _ _ _)^) ].
+    (*| exact (right_identity _ _ _ _ @ (left_identity _ _ _ _)^) *)].
   Defined.
 
   Definition idtoiso

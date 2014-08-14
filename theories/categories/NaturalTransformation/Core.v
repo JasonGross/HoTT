@@ -62,7 +62,7 @@ Create HintDb natural_transformation discriminated.
 Global Arguments components_of {C D}%category {F G}%functor T%natural_transformation
           c%object : rename, simpl nomatch.
 Global Arguments commutes {C D F G} !T / _ _ _ : rename.
-Global Arguments commutes_sym {C D F G} !T / _ _ _ : rename.
+(*Global Arguments commutes_sym {C D F G} !T / _ _ _ : rename.*)
 
 Hint Resolve @commutes : category natural_transformation.
 

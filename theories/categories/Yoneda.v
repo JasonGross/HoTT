@@ -140,6 +140,8 @@ Section coyoneda_lemma.
 
   Section nt.
     Context `{Funext}.
+    (** not actually true, but a useful fiction *)
+    Context `{forall s d, IsHSet (morphism set_cat s d)}.
 
     Variable A : PreCategory.
 
@@ -185,6 +187,7 @@ Section coyoneda_lemma.
 
   Definition coyoneda_lemma_morphism_inverse
              `{Funext}
+             `{forall s d, IsHSet (morphism set_cat s d)}
              A
              (F : object (A -> set_cat))
              a
@@ -211,7 +214,7 @@ Section coyoneda_lemma.
       ).
   Defined.
 
-  Global Instance coyoneda_lemma `{Funext} A
+  Global Instance coyoneda_lemma `{Funext} `{forall s d, IsHSet (morphism set_cat s d)} A
   : IsIsomorphism (coyoneda_natural_transformation A).
   Proof.
     eapply isisomorphism_natural_transformation.
@@ -251,7 +254,7 @@ Section yoneda_lemma.
 
   Section functor.
     Context `{Funext}.
-
+    Context `{forall s d, IsHSet (morphism set_cat s d)}.
     Variable A : PreCategory.
     (** Let [F] be an arbitrary functor from [A] to [Set]. Then Yoneda's
       lemma says that: *)
@@ -283,6 +286,7 @@ Section yoneda_lemma.
   End functor.
 
   Context `{Funext}.
+  Context `{forall s d, IsHSet (morphism set_cat s d)}.
 
   Variable A : PreCategory.
 
@@ -342,7 +346,6 @@ End yoneda_lemma.
 Section FullyFaithful.
   Context `{Funext}.
   Context `{forall x y, IsHSet (morphism set_cat x y)}.
-  Variable A : PreCategory.
 
   Local Arguments Overture.compose / .
 
@@ -352,11 +355,11 @@ Section FullyFaithful.
     pose proof (@isisomorphism_inverse
                   _ _ _ _
                   (@isisomorphism_components_of
-                     _ _ _ _ _ _
+                     _ _ _ _ _ _ _
                      (@isisomorphism_components_of
-                        _ _ _ _ _ _
-                        (@coyoneda_lemma _ A)
-                        (@coyoneda _ A b))
+                        _ _ _ _ _ _ _
+                        (@coyoneda_lemma _ _ A)
+                        (@coyoneda _ _ A b))
                      a)) as H'.
     simpl in *.
     unfold coyoneda_lemma_morphism_inverse in *; simpl in *.

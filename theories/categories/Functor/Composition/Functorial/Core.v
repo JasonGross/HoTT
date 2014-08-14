@@ -16,6 +16,8 @@ Section functorial_composition.
   Variable C : PreCategory.
   Variable D : PreCategory.
   Variable E : PreCategory.
+  Context `{forall s d, IsHSet (morphism D s d)}
+          `{forall s d, IsHSet (morphism E s d)}.
 
   Local Open Scope natural_transformation_scope.
 
@@ -34,7 +36,7 @@ Section functorial_composition.
   Proof.
     refine (Build_Functor
               (C -> D) ((D -> E) -> (C -> E))
-              (@whiskerR_functor _ _ _ _)
+              (@whiskerR_functor _ _ _ _ _ _)
               compose_functor_morphism_of
               _
               _);

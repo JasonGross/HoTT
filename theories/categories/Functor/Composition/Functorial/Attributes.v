@@ -38,6 +38,9 @@ Section faithfull_precomposition_essential_surjective.
 
   Variable H : Functor A B.
 
+  Context `{forall s d, IsHSet (morphism C s d)}.
+  Context `{forall s d, IsHSet (morphism B s d)}.
+
   Context `{H_is_essentially_surjective : IsEssentiallySurjective A B H}.
 
   Local Arguments Overture.compose / .

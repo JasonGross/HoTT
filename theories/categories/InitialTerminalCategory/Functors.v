@@ -77,8 +77,14 @@ Section unique.
     := let x := {| center := from_initial C |} in x.
   Proof.
     abstract (
-        intros; apply path_functor'_sig;
-        (exists (center _));
+        intro F; destruct F; expand;
+        repeat match goal with
+                 | [ |- ?f ?a ?b ?c ?d = ?f ?a ?b ?c ?d ] => reflexivity
+                 | [ |- ?f ?a ?b ?c ?d = ?f ?a ?b ?c ?d' ] => (cut (d = d'); [ let H := fresh in intro H; destruct H | ])
+                 | [ |- ?f ?a ?b ?c ?d = ?f ?a ?b ?c' ?d' ] => (cut (c = c'); [ let H := fresh in intro H; destruct H | ])
+                 | [ |- ?f ?a ?b ?c ?d = ?f ?a ?b' ?c' ?d' ] => (cut (b = b'); [ let H := fresh in intro H; destruct H | ])
+                 | [ |- ?f ?a ?b ?c ?d = ?f ?a' ?b' ?c' ?d' ] => cut (a = a'); [ let H := fresh in intro H; destruct H | ]
+               end;
         apply path_forall; intro x;
         apply (initial_category_rect _ x)
       ).

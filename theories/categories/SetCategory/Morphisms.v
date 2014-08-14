@@ -17,7 +17,8 @@ Local Open Scope category_scope.
 
 Lemma isisomorphism_set_cat_natural_transformation_paths
       `{fs : Funext} (X : set_cat) C D F G
-      (T1 T2 : morphism set_cat X (BuildhSet (@NaturalTransformation C D F G) (@trunc_natural_transformation _ _ _ _ _)))
+      `{HD : forall s d, IsHSet (morphism D s d)}
+      (T1 T2 : morphism set_cat X (BuildhSet (@NaturalTransformation C D F G) (@trunc_natural_transformation _ _ _ _ _ _ _)))
       (H : forall x y, T1 x y = T2 x y)
       `{@IsIsomorphism set_cat _ _ T1}
 : @IsIsomorphism set_cat _ _ T2.
@@ -81,13 +82,13 @@ Section equiv_iso_set_cat.
       ).
   Defined.*)
 
-  Lemma path_idtoequiv_idtoiso (s d : set_cat) (p : s = d)
+  (*Lemma path_idtoequiv_idtoiso (s d : set_cat) (p : s = d)
   : iso_equiv s d (equiv_path _ _ (ap setT p)) = idtoiso set_cat p.
   Proof.
     apply path_isomorphic.
     case p.
     reflexivity.
-  Defined.
+  Defined.*)
 End equiv_iso_set_cat.
 
 Section equiv_iso_prop_cat.
@@ -136,17 +137,17 @@ Section equiv_iso_prop_cat.
       ).
   Defined.
 
-  Lemma path_idtoequiv_idtoiso_prop (s d : prop_cat) (p : s = d)
+  (*Lemma path_idtoequiv_idtoiso_prop (s d : prop_cat) (p : s = d)
   : iso_equiv_prop s d (equiv_path _ _ (ap hproptype p)) = idtoiso prop_cat p.
   Proof.
     apply path_isomorphic.
     case p.
     reflexivity.
-  Defined.
+  Defined.*)
 End equiv_iso_prop_cat.
 
 Local Close Scope morphism_scope.
-Instance iscategory_set_cat `{Univalence}
+(*Instance iscategory_set_cat `{Univalence}
 : IsCategory set_cat.
 Proof.
   intros C D.
@@ -163,3 +164,4 @@ Proof.
   change (IsEquiv (iso_equiv_prop C D o equiv_path C D o @ap _ _ hproptype C D)).
   typeclasses eauto.
 Defined.
+*)
