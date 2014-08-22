@@ -278,6 +278,8 @@ CATEGORY_VFILES = \
 	\
 	$(srcdir)/theories/categories/DependentProduct.v \
 	\
+	$(srcdir)/theories/categories/MonoidalCategory.v \
+	\
 	$(srcdir)/theories/categories/UniversalProperties.v \
 	\
 	$(srcdir)/theories/categories/KanExtensions/KanExtensions.v \

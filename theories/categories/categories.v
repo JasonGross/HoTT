@@ -52,6 +52,8 @@ Require PseudonaturalTransformation.
 Require DualFunctor.
 (** ** The Grothendieck Construction *)
 Require Grothendieck.
+(** ** Monoidal Categories *)
+Require MonoidalCategory.
 (** ** The Category of Sections of a Functor *)
 Require CategoryOfSections.
 (** ** The Dependent Product *)
