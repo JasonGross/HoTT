@@ -51,8 +51,7 @@ Section Law3.
                => simpl rewrite (@ap_transport _ P _ _ _ p (fun _ => @Datatypes.snd _ _) z)
              | [ |- appcontext[components_of (transport ?P ?p ?z)] ]
                => simpl rewrite (@ap_transport _ P _ _ _ p (fun _ => components_of) z)
-             | [ |- context[transport ?P (path_prod ?x ?y ?HA ?HB) ?Px] ]
-               => rewrite !(transport_path_prod _ _ P x y HA HB Px) (* https://coq.inria.fr/bugs/show_bug.cgi?id=3539 *)
+             | _ => rewrite !transport_path_prod
              | _ => rewrite !transport_const
              | _ => rewrite !transport_forall_constant
              | [ |- appcontext[transport (fun y => ?f (@object_of ?C ?D y ?x))] ]
