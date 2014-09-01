@@ -59,16 +59,10 @@ Section Law3.
                => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (y x)) (@object_of C D))
              | [ |- appcontext[transport (fun y => ?f (@object_of ?C ?D y ?x) ?z)] ]
                => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (y x) z) (@object_of C D))
-             | [ |- appcontext[transport (fun y : Functor ?C ?D => ?f (Datatypes.fst (object_of y ?x)))] ]
-               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (Datatypes.fst (y x))) (@object_of C D))
-             | [ |- appcontext[transport (fun y : Functor ?C ?D => ?f (Datatypes.snd (object_of y ?x)))] ]
-               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (Datatypes.snd (y x))) (@object_of C D))
-             | [ |- appcontext[transport (fun y : Functor ?C ?D => ?f (?g (object_of y ?x)) ?z)] ]
+             | [ |- appcontext[transport (fun y => ?f (?g (@object_of ?C ?D y ?x)))] ]
+               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (g (y x))) (@object_of C D))
+             | [ |- appcontext[transport (fun y => ?f (?g (@object_of ?C ?D y ?x)) ?z)] ]
                => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (g (y x)) z) (@object_of C D))
-             | [ |- appcontext[transport (fun y : Functor ?C ?D => ?f (Datatypes.fst (object_of y ?x)) ?z)] ]
-               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (Datatypes.fst (y x)) z) (@object_of C D))
-             | [ |- appcontext[transport (fun y : Functor ?C ?D => ?f (Datatypes.snd (object_of y ?x)) ?z)] ]
-               => rewrite (fun a b => @transport_compose _ _ a b (fun y => f (Datatypes.snd (y x)) z) (@object_of C D))
              | [ |- appcontext[ap (@object_of ?C ?D) (@path_functor'_sig ?H ?C ?D ?F ?G (?HO; ?HM))] ]
                => simpl rewrite (@path_functor'_sig_fst H C D F G HO HM)
              | _ => transport_path_forall_hammer
