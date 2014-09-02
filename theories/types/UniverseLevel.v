@@ -42,10 +42,16 @@ Proof.
              (fun _ => idpath)
              (fun _ => idpath)). }
   { hnf; simpl.
-    intro x0.
-    revert x0.
-    intro x0.
-    pattern x0.
+    pose (@eta_path_universe _ (Lift x) (Lift y)).
+    let P := match goal with |- forall x0 : ?T, @?P x0 => constr:(P) end in
+    intro x0;
+      apply (@transport _ P _ x0 (eta_path_universe x0)).
+
+    lazymatch goal with
+    | [ |- context[@path_universe ?ua ?A ?B ?f ?e] ]
+      => pattern e
+    end.
+    generalize (equiv_path (Lift x) (Lift y) x0).
     rewrite <- !(eta_path_universe x0).
     SearchAbout path_universe.
     Set Printing Implicit.
