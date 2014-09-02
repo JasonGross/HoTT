@@ -2,8 +2,8 @@
 
 (** * The cumulative hierarchy [V]. *)
 
-Require Import Overture PathGroupoids HProp Trunc Fibrations Equivalences EquivalenceVarieties UnivalenceImpliesFunext.
-Require Import types.Unit types.Bool types.Universe types.Sigma types.Arrow types.Forall.
+Require Import Overture PathGroupoids HProp Trunc Fibrations Equivalences EquivalenceVarieties UnivalenceImpliesFunext types.UniverseLevel.
+Require Import types.Unit types.Bool types.Universe types.Sigma types.Arrow types.Forall types.Paths.
 Require Import hit.minus1Trunc hit.quotient.
 Local Open Scope path_scope.
 Local Open Scope equiv_scope.
@@ -24,7 +24,7 @@ Axiom glue : forall {A B : Type} (R : A -> B -> hProp)
 
 Definition RPushout_rect {A B : Type} {R : A -> B -> hProp}
   (P : RPushout R -> Type)
-  (i : forall a : A, P (inL R a)) (j : forall b : B, P (inR R b)) 
+  (i : forall a : A, P (inL R a)) (j : forall b : B, P (inR R b))
   (gl : forall (a : A) (b : B) (r : R a b), (glue R a b r) # (i a) = (j b))
 : forall (x : RPushout R), P x
 := fun x => (match x with inL a => (fun _ => i a)
@@ -32,7 +32,7 @@ Definition RPushout_rect {A B : Type} {R : A -> B -> hProp}
 
 Axiom RPushout_comp_glue : forall {A B : Type} {R : A -> B -> hProp}
   (P : RPushout R -> Type)
-  (i : forall a : A, P (inL R a)) (j : forall b : B, P (inR R b)) 
+  (i : forall a : A, P (inL R a)) (j : forall b : B, P (inR R b))
   (gl : forall (a : A) (b : B) (r : R a b), (glue R a b r) # (i a) = (j b))
   (a : A) (b : B) (r : R a b),
 apD (RPushout_rect P i j gl) (glue R a b r) = gl a b r.
@@ -47,7 +47,7 @@ Definition RPushout_rect_nd {A B : Type} (R : A -> B -> hProp)
 : RPushout R -> P
 := RPushout_rect (fun _ => P) i j (fun a b r => transport_const _ _ @ gl a b r).
 
-Definition RPushout_comp_nd_glue {A B : Type} (R : A -> B -> hProp) 
+Definition RPushout_comp_nd_glue {A B : Type} (R : A -> B -> hProp)
   (P : Type) (i : A -> P) (j : B -> P)
   (gl : forall (a : A) (b : B) (r : R a b), (i a) = (j b))
   (a : A) (b : B) (r : R a b)
@@ -337,7 +337,19 @@ Defined.
 Lemma bisimulation_equals_id : forall u v : V, (u = v) = (u ~~ v).
 Proof.
   intros u v.
-  apply path_iff_hprop_uncurried; split.
+  refine (path_iff_hprop_uncurried _).
+  { destruct (u ~~ v) as [uv H]; simpl in *.
+    intros p q.
+    specialize (H p q).
+    simpl in *.
+    destruct H as [H1 H2].
+    exists (ap lift H1).
+    intro y.
+    specialize (H2 (ap lower y)).
+    apply (@equiv_inv _ _ (ap (ap lower)) (@isequiv_ap _ _ _ (@isequiv_ap _ _ _ (isequiv_inverse) _ _) _ _)).
+    refine (_ @ H2).
+    refine ((ap_compose lift lower _)^ @ ap_idmap _). }
+  split.
   intro p; exact (transport (fun x => u ~~ x) p (reflexive_bisimulation u)).
   generalize u v.
   refine (V_rect_hprop _ _ _); intros A f H_f.
@@ -476,7 +488,7 @@ Proof.
     + intro a. apply min1; exists (eu a). exact (ap10 factor a).
     + intro a'. generalize (epi_eu a'). apply minus1Trunc_map.
       intros [a p]. exists a. path_via (mu (eu a)).
-      exact (ap10 factor a). exact (ap mu p). 
+      exact (ap10 factor a). exact (ap mu p).
   - intro v. apply hprop_allpath.
     intros [Au [mu ((hset, mono), p)]].
     intros [Au' [mu' ((hset', mono'), p')]].
@@ -620,14 +632,14 @@ Proof.
       2: assumption.
       assert (H' : [a, b] = V_singleton (V_singleton b)).
       { apply (snd pair_eq_singleton).
-        split. apply path_singleton; exact (p1 @ p'^).
+        split. apply (snd path_singleton); exact (p1 @ p'^).
         apply (snd pair_eq_singleton).
         split; [exact (p1 @ p'^) | reflexivity]. }
       assert (H'' : V_pair c d = V_singleton b)
         by apply (fst pair_eq_singleton (p^ @ H')).
       symmetry; apply (fst pair_eq_singleton H'').
 - intros (p, p').
-  apply path_pair. split. apply path_singleton; exact p.
+  apply path_pair. split. apply (snd path_singleton); exact p.
   apply path_pair. split; assumption; assumption.
 Defined.
 
@@ -648,7 +660,7 @@ Definition V_func (a : V) (b : V) : V
 := @set ([a] -> [b]) (fun f => set (fun x => [func_of_members x, func_of_members (f x)] )).
 
 (** The union of a set Uv *)
-Definition V_union (v : V) := 
+Definition V_union (v : V) :=
   @set ({x : [v] & [func_of_members x]}) (fun z => func_of_members (pr2 z)).
 
 (** The ordinal successor x ∪ {x} *)
@@ -668,7 +680,7 @@ Proof.
     + apply min1; exists (inr tt). destruct u. apply setext'; auto.
 Defined.
 
-(** The set of finite ordinals *) 
+(** The set of finite ordinals *)
 Definition V_omega : V
 := set (fix I n := match n with 0   => V_empty
                               | S n => V_succ (I n) end).
@@ -756,7 +768,7 @@ Proof.
     + intros z Hz. simpl.
       generalize (H1 z Hz). apply minus1Trunc_map. intros [(a,b) p]. simpl in p.
       exists a. path_via ([func_of_members a, func_of_members b]).
-      apply path_pair_ord. split. reflexivity.
+      apply (snd path_pair_ord). split. reflexivity.
       apply H3 with (func_of_members a). split.
       exact (pr2 (h a)).
       exact (transport (fun w => w ∈ phi) p^ Hz).
