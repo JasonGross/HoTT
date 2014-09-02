@@ -117,8 +117,8 @@ Proof.
   by apply allpath_hprop.
 Qed.
 
-Definition path_iff_hprop_uncurried `{IsHProp A, IsHProp B}
-: (A <-> B) -> A = B
+Definition path_iff_hprop_uncurried {A : Type} `{IsHProp A} {B : Type} `{IsHProp B}
+: (A <-> B) -> A = B :> Type
   := @path_universe_uncurried A B o equiv_iff_hprop_uncurried.
 
 Definition path_iff_hProp_uncurried `{Funext} {A B : hProp}
