@@ -2,7 +2,6 @@
 (** * Theorems about the booleans *)
 
 Require Import Overture Contractible Equivalences types.Prod HSet.
-Local Open Scope equiv_scope.
 
 (* coq calls it "bool", we call it "Bool" *)
 Inductive Bool : Type :=

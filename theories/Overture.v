@@ -74,6 +74,7 @@ Hint Unfold compose.
 (** We put the following notation in a scope because leaving it unscoped causes it to override identical notations in other scopes.  It's convenient to use the same notation for, e.g., function composition, morphism composition in a category, and functor composition, and let Coq automatically infer which one we mean by scopes.  We can't do this if this notation isn't scoped.  Unfortunately, Coq doesn't have a built-in [function_scope] like [type_scope]; [type_scope] is automatically opened wherever Coq is expecting a [Sort], and it would be nice if [function_scope] were automatically opened whenever Coq expects a thing of type [forall _, _] or [_ -> _].  To work around this, we open [function_scope] globally. *)
 Notation "g 'o' f" := (compose g f) (at level 40, left associativity) : function_scope.
 Open Scope function_scope.
+Arguments compose {_ _ _}%type (_ _)%function_scope _.
 
 (** Dependent composition of functions. *)
 Definition composeD {A B C} (g : forall b, C b) (f : A -> B) := fun x : A => g (f x).
@@ -81,6 +82,7 @@ Definition composeD {A B C} (g : forall b, C b) (f : A -> B) := fun x : A => g (
 Hint Unfold composeD.
 
 Notation "g 'oD' f" := (composeD g f) (at level 40, left associativity) : function_scope.
+Arguments composeD {_ _ _}%type (_ _)%function_scope _.
 
 (** ** The groupoid structure of identity types. *)
 
@@ -169,12 +171,9 @@ Definition transport {A : Type} (P : A -> Type) {x y : A} (p : x = y) (u : P x) 
   match p with idpath => u end.
 
 (** See above for the meaning of [simpl nomatch]. *)
-Arguments transport {A} P {x y} p%path_scope u : simpl nomatch.
+Arguments transport {A} P {x y} p u : simpl nomatch.
 
 (** Transport is very common so it is worth introducing a parsing notation for it.  However, we do not use the notation for output because it hides the fibration, and so makes it very hard to read involved transport expression.*)
-Delimit Scope fib_scope with fib.
-Local Open Scope fib_scope.
-
 Notation "p # x" := (transport _ p x) (right associativity, at level 65, only parsing) : path_scope.
 
 (** Having defined transport, we can use it to talk about what a homotopy theorist might see as "paths in a fibration over paths in the base"; and what a type theorist might see as "heterogeneous eqality in a dependent type".
@@ -214,7 +213,8 @@ Proof.
 Defined.
 
 (** See above for the meaning of [simpl nomatch]. *)
-Arguments ap {A B} f {x y} p : simpl nomatch.
+Arguments ap {A%type B} f%function_scope {x y} p%path : simpl nomatch.
+Arguments pointwise_paths {A%type P} (f g)%function_scope.
 
 (** Similarly, dependent functions act on paths; but the type is a bit more subtle. If [f : forall a:A, B a] and [p : x = y] is a path in [A], then [apD f p] should somehow be a path between [f x : B x] and [f y : B y]. Since these live in different types, we use transport along [p] to make them comparable: [apD f p : p # f x = f y].
 
@@ -226,7 +226,7 @@ Definition apD {A:Type} {B:A->Type} (f:forall a:A, B a) {x y:A} (p:x=y):
   match p with idpath => idpath end.
 
 (** See above for the meaning of [simpl nomatch]. *)
-Arguments apD {A B} f {x y} p : simpl nomatch.
+Arguments apD {A%type B} f%function_scope {x y} p%path : simpl nomatch.
 
 (** ** Equivalences *)
 
@@ -275,10 +275,12 @@ Delimit Scope equiv_scope with equiv.
 Local Open Scope equiv_scope.
 
 Notation "A <~> B" := (Equiv A B) (at level 85) : equiv_scope.
+Notation "A <~> B" := (Equiv A B) (at level 85) : type_scope.
 
 (** A notation for the inverse of an equivalence.  We can apply this to a function as long as there is a typeclass instance asserting it to be an equivalence.  We can also apply it to an element of [A <~> B], since there is an implicit coercion to [A -> B] and also an existing instance of [IsEquiv]. *)
 
 Notation "f ^-1" := (@equiv_inv _ _ f _) (at level 3, format "f '^-1'") : equiv_scope.
+Notation "f ^-1" := (@equiv_inv _ _ f _) (at level 3, format "f '^-1'") : function_scope.
 
 (** ** Contractibility and truncation levels *)
 
@@ -319,7 +321,6 @@ Inductive trunc_index : Type :=
 (** We will use [Notation] for [trunc_index]es, so define a scope for them here. *)
 Delimit Scope trunc_scope with trunc.
 Bind Scope trunc_scope with trunc_index.
-Arguments trunc_S _%trunc_scope.
 
 Fixpoint nat_to_trunc_index (n : nat) : trunc_index
   := match n with
@@ -404,11 +405,14 @@ Definition path_forall `{Funext} {A : Type} {P : A -> Type} (f g : forall x : A,
   :=
   (@apD10 A P f g)^-1.
 
+Arguments path_forall {_} {A%type P} (f g)%function_scope _.
+
 Definition path_forall2 `{Funext} {A B : Type} {P : A -> B -> Type} (f g : forall x y, P x y) :
   (forall x y, f x y = g x y) -> f = g
   :=
   (fun E => path_forall f g (fun x => path_forall (f x) (g x) (E x))).
 
+Arguments path_forall2 {_} {A B}%type {P} (f g)%function_scope _.
 
 (** *** Tactics *)
 
