@@ -205,17 +205,34 @@ Defined.
 Section Reflective_Subuniverse.
   Context {subU : ReflectiveSubuniverse}.
 
+  (** Functoriality of [O_rectnd] homotopies *)
+  Definition O_rectnd_homotopy {P Q} {Q_inO : inO Q} (f g : P -> Q) (pi : f == g)
+  : O_rectnd f == O_rectnd g.
+  Proof.
+    apply O_rectpaths; intro x.
+    etransitivity.
+    { apply O_rectnd_beta. }
+    { etransitivity.
+      { exact (pi _). }
+      { symmetry; apply O_rectnd_beta. } }
+  Defined.
+
+  Local Ltac reflective_subuniverse_functor_t :=
+    repeat match goal with
+             | _ => progress hnf
+             | [ H := _ |- _ ] => subst H
+             | _ => reflexivity
+             | [ |- forall x : O ?T, @?f x = @?g x ] => refine (O_rectpaths f g _); cbn
+             | _ => intro
+             | _ => progress rewrite ?O_rectnd_beta, ?eisretr, ?eissect (* TODO: Do we want to make this use [transport]/[concat], so we can keep the proof term around? *)
+           end.
+
   (** If [T] is in the subuniverse, then [O_unit T] is an equivalence. *)
   Global Instance isequiv_O_unit_inO (T : Type) {T_inO : inO T} : IsEquiv (O_unit T).
   Proof.
     pose (g := O_rectnd idmap).
-    refine (isequiv_adjointify (O_unit T) g _ _).
-    - refine (O_rectpaths (O_unit T o g) idmap _).
-      intros x; unfold compose.
-      apply ap.
-      apply O_rectnd_beta.
-    - intros x.
-      apply O_rectnd_beta.
+    refine (isequiv_adjointify (O_unit T) g _ _);
+      abstract reflective_subuniverse_functor_t.
   Defined.
 
   Definition equiv_O_unit (T : Type) {T_inO : inO T} : T <~> O T
@@ -232,22 +249,16 @@ Section Reflective_Subuniverse.
     Definition O_functor_compose {A B C : Type} (f : A -> B) (g : B -> C)
     : (O_functor (g o f)) == (O_functor g) o (O_functor f).
     Proof.
-      apply O_rectpaths; intros x; unfold compose.
-      refine (O_rectnd_beta (O_unit C o g o f) x @ _).
-      transitivity (O_functor g (O_unit B (f x))).
-      - symmetry. exact (O_rectnd_beta (O_unit C o g) (f x)).
-      - apply ap; symmetry.
-        exact (O_rectnd_beta (O_unit B o f) x).
-    Defined.
+      unfold O_functor; reflective_subuniverse_functor_t.
+    Qed.
 
     (** Functoriality on homotopies *)
     Definition O_functor_homotopy {A B : Type} (f g : A -> B) (pi : f == g)
     : O_functor f == O_functor g.
     Proof.
-      refine (O_rectpaths _ _ _); intros x.
-      refine (O_rectnd_beta (O_unit B o f) x @ _).
-      refine (_ @ (O_rectnd_beta (O_unit B o g) x)^).
-      unfold compose; apply ap.
+      unfold O_functor; apply O_rectnd_homotopy.
+      intro x; cbn.
+      apply ap.
       apply pi.
     Defined.
 
@@ -290,17 +301,8 @@ Section Reflective_Subuniverse.
     Global Instance isequiv_O_functor {A B} (f : A -> B) `{IsEquiv _ _ f}
     : IsEquiv (O_functor f).
     Proof.
-      refine (isequiv_adjointify (O_functor f) (O_functor f^-1) _ _).
-      - intros x.
-        refine ((O_functor_compose _ _ x)^ @ _).
-        refine (O_functor_homotopy _ idmap _ x @ _).
-        + intros y; apply eisretr.
-        + apply O_functor_idmap.
-      - intros x.
-        refine ((O_functor_compose _ _ x)^ @ _).
-        refine (O_functor_homotopy _ idmap _ x @ _).
-        + intros y; apply eissect.
-        + apply O_functor_idmap.
+      refine (isequiv_adjointify (O_functor f) (O_functor f^-1) _ _);
+      unfold O_functor; abstract reflective_subuniverse_functor_t.
     Defined.
 
     Definition equiv_O_functor {A B} (f : A <~> B)
@@ -312,13 +314,32 @@ Section Reflective_Subuniverse.
                (f : A -> B) (g : B -> C)
     : g o O_rectnd f == O_rectnd (g o f).
     Proof.
-      refine (O_rectpaths _ _ _); intros x; unfold compose.
-      transitivity (g (f x)).
-      - apply ap. apply O_rectnd_beta.
-      - symmetry. exact (O_rectnd_beta (g o f) x).
-    Defined.
+      reflective_subuniverse_functor_t.
+    Qed.
 
   End Functor.
+
+  Local Ltac reflective_subuniverse_functor_rewrite_t :=
+    repeat match goal with
+             | _ => progress rewrite ?O_rectnd_beta, ?eisretr, ?eissect
+             | [ |- context[?g (O_rectnd ?f ?x)] ] => simpl rewrite (O_rectnd_postcompose f g x)
+           end.
+
+  (** We really just want to be using [setoid_rewrite] here, but we don't have it, so we need to manually rewrite with homotopies. *)
+  (** We wrap the rewriter in [set_evars] and [subst_evars] so that [rewrite] doesn't decide to instantiate evars with more evars. *)
+  Local Ltac reflective_subuniverse_functor_rewrite_under_binders_t :=
+    repeat first [ progress reflective_subuniverse_functor_rewrite_t
+                 | etransitivity;
+                   [ apply O_rectnd_homotopy; intro;
+                     set_evars;
+                     progress reflective_subuniverse_functor_rewrite_under_binders_t;
+                     subst_evars;
+                     reflexivity
+                   | ]
+                 | reflexivity ].
+  Local Ltac reflective_subuniverse_functor_t2 :=
+    repeat first [ progress reflective_subuniverse_functor_t
+                 | progress reflective_subuniverse_functor_rewrite_under_binders_t ].
 
   Section Replete.
 
@@ -515,7 +536,6 @@ Section Reflective_Subuniverse.
     Defined.
 
     (** We show that [OA*OB] has the same universal property as [O(A*B)] *)
-    (* TODO: Can this be done without funext? *)
 
     Definition equiv_O_prod_unit_precompose
                {fs : Funext} (A B C : Type) {C_inO : inO C}
@@ -536,64 +556,44 @@ Section Reflective_Subuniverse.
     Definition O_prod_cmp (A B : Type) : O (A * B) -> O A * O B
       := O_rectnd (O_prod_unit A B).
 
-    Local Arguments compose / .
-    Require Import HoTT.Tactics.
-
-
-    Lemma O_rectnd_pointwise {P Q} {Q_inO : inO Q} (f g : O P -> P -> Q) x
-    : f x == g x -> O_rectnd (f x) x = O_rectnd (g x) x.
-    Proof.
-      change (f x) with ((fun x : { x' : O P | x' = x } => f x.1) (x; idpath)).
-      generalize ((fun x : { x' : O P | x' = x } => f x.1) (x; 1)).
-      change (g x) with ((fun x : { x' : O P | x' = x } => g x.1) (x; idpath)).
-      generalize ((fun x : { x' : O P | x' = x } => g x.1) (x; 1)).
-      clear f g.
-      intros f g H.
-      apply O_rectpaths.
-      unfold compose; intro; simpl.
-      etransitivity; try apply O_rectnd_beta.
-      etransitivity; try apply H.
-      symmetry; apply O_rectnd_beta.
-    Defined.
-
+    (** Useful helper lemma *)
     Definition O_rectnd_twice {P Q} {Q_inO : inO Q} (f : P -> P -> Q)
     : forall x, O_rectnd (fun x0 : P => O_rectnd (f x0) x) x = O_rectnd (fun x0 : P => f x0 x0) x.
     Proof.
-      refine (O_rectpaths _ _ _); intros x; simpl.
-      repeat rewrite O_rectnd_beta.
-      reflexivity.
+      reflective_subuniverse_functor_t.
     Qed.
-
-    Lemma O_rectnd_pointwise_nd {P Q} {Q_inO : inO Q} (f g : P -> Q)
-    : f == g -> O_rectnd f == O_rectnd g.
-    Proof.
-      intros H x.
-      apply (O_rectnd_pointwise (fun _ => f) (fun _ => g) x H).
-    Defined.
-
-    Lemma O_rectnd_twice {P Q} {Q_inO : inO Q} (f : P -> P -> Q) x
-    : O_rectnd (fun x0 => O_rectnd (f x0) x) x = O_rectnd (fun x0 => f x0 x0) x.
-    Proof.
-      admit.
-    Defined.
-
 
     Global Instance isequiv_O_prod_cmp (A B : Type)
     : IsEquiv (O_prod_cmp A B).
     Proof.
-      unfold O_prod_cmp.
-      unfold O_prod_unit.
       refine (isequiv_adjointify _ _ _ _).
-      { apply prod_rect.
-        intros a.
-        apply O_rectnd.
-        intro b; revert a.
-        apply O_rectnd.
-        intro a.
+      { apply prod_rect; intro a.
+        apply O_rectnd; intro b; revert a.
+        apply O_rectnd; intro a.
         apply O_unit.
         exact (a, b). }
       { intro.
-        unfold prod_rect.
+        unfold prod_rect, O_prod_cmp, O_prod_unit, functor_prod.
+        reflective_subuniverse_functor_t2.
+        etransitivity;
+                   [ apply O_rectnd_homotopy; intro; progress reflective_subuniverse_functor_rewrite_t;
+                     match goal with
+                       | [ e := _ |- _ ] => subst e
+                     end;
+                     reflexivity
+                   | ].
+        etransitivity.
+        apply O_rectnd_Local Ltac reflective_subuniverse_functor_t2 :=
+    repeat match goal with
+             | [ |- context[?g (O_rectnd ?f ?x)] ] => simpl rewrite (O_rectnd_postcompose f g x)
+             | _ => progress reflective_subuniverse_functor_t
+             | _ => progress (etransitivity; [ solve [ apply O_rectnd_homotopy; intro; reflective_subuniverse_functor_t2 ] | ])
+           end.
+
+        reflective_subuniverse_functor_t2.
+        match goal with
+          | [ |- context[?g (O_rectnd ?f ?x)] ] => simpl rewrite (O_rectnd_postcompose f g x)
+        end.
         change (O_rectnd (functor_prod (O_unit A) (O_unit B))
                          (O_rectnd
                             (fun b => O_functor (fun a => (a, b)) (fst x))
@@ -602,11 +602,11 @@ Section Reflective_Subuniverse.
         (* needs [s/constr/open_constr/] in the definitions of [simpl rewrite] *)
         simpl rewrite (O_rectnd_postcompose _ (O_rectnd (functor_prod (O_unit A) (O_unit B)))).
         transitivity (O_rectnd (fun x0 : B => (fst x, O_unit _ x0)) (snd x)).
-        { apply O_rectnd_pointwise_nd; intro b.
+        { apply O_rectnd_homotopy; intro b.
           unfold O_functor.
           simpl rewrite (O_rectnd_postcompose _ (O_rectnd (functor_prod (O_unit A) (O_unit B)))).
           transitivity (O_rectnd (fun a : A => (O_unit A a, O_unit _ b)) (fst x)).
-          { apply O_rectnd_pointwise_nd; intro a.
+          { apply O_rectnd_homotopy; intro a.
             apply O_rectnd_beta. }
           { change (O_rectnd ((fun Oa => (Oa, O_unit B b)) o O_unit A) (fst x)
                     = (fst x, O_unit B b)).
@@ -631,13 +631,13 @@ Section Reflective_Subuniverse.
         unfold O_functor at 3.
         simpl rewrite (O_rectnd_postcompose (O_unit B o snd) (O_rectnd (fun b => O_functor (fun a => (a, b)) (O_functor fst x))) x).
         transitivity (O_rectnd (fun x0 : A * B => O_rectnd (fun x1 : A * B => O_unit (A * B) (fst x1, snd x0)) x) x).
-        { apply O_rectnd_pointwise_nd; intro.
+        { apply O_rectnd_homotopy; intro.
           rewrite O_rectnd_beta.
           unfold O_functor.
           match goal with
             | [ |- context[?f (O_rectnd ?g ?x)] ] => simpl rewrite (O_rectnd_postcompose g f x)
           end.
-          apply O_rectnd_pointwise_nd; intro.
+          apply O_rectnd_homotopy; intro.
           rewrite O_rectnd_beta.
           reflexivity. }
         { rewrite O_rectnd_twice.
