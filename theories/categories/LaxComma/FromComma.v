@@ -16,12 +16,10 @@ Local Open Scope morphism_scope.
 Local Open Scope category_scope.
 
 Section lax_comma_category.
-  Universe i0 i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20.
-
   Context `{Funext}.
-  Variable P : PreCategory@{i3 i2} -> Type@{i1}.
+  Variable P : PreCategory -> Type.
   Context `{HF : forall C D, P C -> P D -> IsHSet (Functor C D)}.
-  Local Notation cat := (@sub_pre_cat@{i0 i1 i2 i3 i4 i5 i6 i7 i8 i9 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20} _ P HF).
+  Local Notation cat := (@sub_pre_cat _ P HF).
 
   Variable A : PreCategory.
   Variable B : PreCategory.
