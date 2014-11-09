@@ -72,8 +72,8 @@ let collect_dependance gref =
   | Globnames.ConstRef cst ->
       let cb = Environ.lookup_constant cst (Global.env()) in
       let c = match cb.Declarations.const_body with
-        | Declarations.Def c -> Lazyconstr.force c
-        | Declarations.OpaqueDef c -> Lazyconstr.force_opaque c
+        | Declarations.Def c -> Mod_subst.force_constr c
+        | Declarations.OpaqueDef c -> Opaqueproof.force_proof c
         | Declarations.Undef _ -> raise (NoDef gref)
       in
       collect_long_names c Data.empty
@@ -92,6 +92,6 @@ let display_dependance gref =
   with NoDef gref ->
     Pp.msgerrnl (Printer.pr_global gref ++ str " has no value")
 
-VERNAC COMMAND EXTEND Searchdepend
+VERNAC COMMAND EXTEND Searchdepend CLASSIFIED AS QUERY
    ["SearchDepend" global(ref) ] -> [ display_dependance (Nametab.global ref) ]
 END
