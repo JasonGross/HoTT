@@ -1,5 +1,5 @@
 (** * Groupoids *)
-Require Import Category.Core Category.Morphisms Category.Strict.
+Require Import Category.Core Category.Morphisms Category.Strict Category.Univalent.
 Require Import Trunc Types.Forall PathGroupoids.
 
 Set Universe Polymorphism.
@@ -73,4 +73,21 @@ Lemma isstrict_groupoid_category X `{IsHSet X}
 : IsStrictCategory (groupoid_category X).
 Proof.
   typeclasses eauto.
+Defined.
+
+(** ** Groupoid precategories are (saturated) categories *)
+Global Instance iscategory_groupoid_category X `{IsTrunc 1 X}
+: IsCategory (groupoid_category X).
+Proof.
+  intros s d.
+  refine (BuildIsEquiv
+            _ _
+            (@idtoiso (groupoid_category X) _ _)
+            (fun m => m : morphism _ _ _)
+            _ _ _);
+    repeat first [ reflexivity
+                 | intros []
+                 | intro
+                 | apply path_isomorphic
+                 | exact (center _) ].
 Defined.
