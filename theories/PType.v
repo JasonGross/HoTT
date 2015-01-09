@@ -60,7 +60,7 @@ Proof.
                               (fun f => equiv_idmap _))).
   refine (equiv_compose' _ (equiv_inverse (equiv_sigma_assoc _ _))).
   refine (equiv_compose' (equiv_sigma_assoc _ _) _).
-  refine (equiv_functor_sigma' (equiv_idmap _) _); intros f; simpl. 
+  refine (equiv_functor_sigma' (equiv_idmap _) _); intros f; simpl.
   apply equiv_sigma_symm0.
 Defined.
 
@@ -123,8 +123,8 @@ Defined.
 
 (** The triple-fiber functor is equal to the negative of the loopspace functor. *)
 Definition pfiber2_loops_functor {A B : pType} (f : A ->* B)
-: loops_inv _ o* pfiber2_loops f o* pfib (pfib (pfib f))
-  ==* loops_functor f o* pfiber2_loops (pfib f).
+: loops_inv _ o pfiber2_loops f o pfib (pfib (pfib f))
+  ==* loops_functor f o pfiber2_loops (pfib f).
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _).

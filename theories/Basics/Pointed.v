@@ -75,7 +75,10 @@ Definition pmap_compose {A B C : pType}
   := Build_pMap A C (g o f)
                 (ap g (point_eq f) @ point_eq g).
 
-Infix "o*" := pmap_compose (at level 40).
+Delimit Scope pmap_scope with pmap.
+Bind Scope pmap_scope with pMap.
+Infix "o" := pmap_compose : pmap_scope.
+Local Open Scope pmap_scope.
 
 (** ** Pointed homotopies *)
 
@@ -122,7 +125,7 @@ Qed.
 
 Definition pmap_compose_assoc {A B C D : pType}
            (h : C ->* D) (g : B ->* C) (f : A ->* B)
-: (h o* g) o* f ==* h o* (g o* f).
+: (h o g) o f ==* h o (g o f).
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); cbn.
@@ -131,7 +134,7 @@ Proof.
 Qed.
 
 Definition pmap_precompose_idmap {A B : pType} (f : A ->* B)
-: f o* pmap_idmap A ==* f.
+: f o pmap_idmap A ==* f.
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); cbn.
@@ -140,7 +143,7 @@ Proof.
 Qed.
 
 Definition pmap_postcompose_idmap {A B : pType} (f : A ->* B)
-: pmap_idmap B o* f ==* f.
+: pmap_idmap B o f ==* f.
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); cbn.
@@ -152,7 +155,7 @@ Qed.
 
 Definition pmap_postwhisker {A B C : pType} {f g : A ->* B}
            (h : B ->* C) (p : f ==* g)
-: h o* f ==* h o* g.
+: h o f ==* h o g.
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); cbn.
@@ -162,7 +165,7 @@ Qed.
 
 Definition pmap_prewhisker {A B C : pType} (f : A ->* B)
            {g h : B ->* C} (p : g ==* h)
-: g o* f ==* h o* f.
+: g o f ==* h o f.
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); cbn.

@@ -153,7 +153,7 @@ Defined.
 
 Definition psusp_functor_compose {X Y Z : pType}
            (g : Y ->* Z) (f : X ->* Y)
-: psusp_functor (g o* f) ==* psusp_functor g o* psusp_functor f.
+: psusp_functor (g o f) ==* psusp_functor g o psusp_functor f.
 Proof.
   pointed_reduce; refine (Build_pHomotopy _ _); cbn.
   - refine (Susp_ind _ _ _ _); cbn; try reflexivity.
@@ -224,8 +224,8 @@ Module Book_Loop_Susp_Adjunction.
 <<
   Definition loop_susp_adjoint_nat_r `{Funext} (A B B' : pType)
              (f : psusp A ->* B) (g : B ->* B')
-  : loop_susp_adjoint A B' (g o* f)
-    ==* loops_functor g o* loop_susp_adjoint A B f.
+  : loop_susp_adjoint A B' (g o f)
+    ==* loops_functor g o loop_susp_adjoint A B f.
   Proof.
     pointed_reduce.
     refine (Build_pHomotopy _ _).
@@ -257,8 +257,8 @@ Proof.
 Defined.
 
 Definition loop_susp_unit_natural {X Y : pType} (f : X ->* Y)
-: loop_susp_unit Y o* f
-  ==* loops_functor (psusp_functor f) o* loop_susp_unit X.
+: loop_susp_unit Y o f
+  ==* loops_functor (psusp_functor f) o loop_susp_unit X.
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); cbn.
@@ -292,8 +292,8 @@ Proof.
 Defined.
 
 Definition loop_susp_counit_natural {X Y : pType} (f : X ->* Y)
-: f o* loop_susp_counit X
-  ==* loop_susp_counit Y o* psusp_functor (loops_functor f).
+: f o loop_susp_counit X
+  ==* loop_susp_counit Y o psusp_functor (loops_functor f).
 Proof.
   pointed_reduce.
   refine (Build_pHomotopy _ _); simpl.
@@ -312,7 +312,7 @@ Qed.
 (** Now the triangle identities *)
 
 Definition loop_susp_triangle1 (X : pType)
-: loops_functor (loop_susp_counit X) o* loop_susp_unit (loops X)
+: loops_functor (loop_susp_counit X) o loop_susp_unit (loops X)
   ==* pmap_idmap (loops X).
 Proof.
   refine (Build_pHomotopy _ _).
@@ -335,7 +335,7 @@ Proof.
 Qed.
 
 Definition loop_susp_triangle2 (X : pType)
-: loop_susp_counit (psusp X) o* psusp_functor (loop_susp_unit X)
+: loop_susp_counit (psusp X) o psusp_functor (loop_susp_unit X)
   ==* pmap_idmap (psusp X).
 Proof.
   refine (Build_pHomotopy _ _);
@@ -355,8 +355,8 @@ Definition loop_susp_adjoint `{Funext} (A B : pType)
 : (psusp A ->* B) <~> (A ->* loops B).
 Proof.
   refine (equiv_adjointify
-            (fun f => loops_functor f o* loop_susp_unit A)
-            (fun g => loop_susp_counit B o* psusp_functor g) _ _).
+            (fun f => loops_functor f o loop_susp_unit A)%pmap
+            (fun g => loop_susp_counit B o psusp_functor g)%pmap _ _).
   - intros g. apply path_pmap.
     refine (pmap_prewhisker _ (loops_functor_compose _ _) @* _).
     refine (pmap_compose_assoc _ _ _ @* _).
@@ -377,8 +377,8 @@ Defined.
 
 Definition loop_susp_adjoint_nat_r `{Funext} (A B B' : pType)
            (f : psusp A ->* B) (g : B ->* B')
-: loop_susp_adjoint A B' (g o* f)
-  ==* loops_functor g o* loop_susp_adjoint A B f.
+: loop_susp_adjoint A B' (g o f)%pmap
+  ==* loops_functor g o loop_susp_adjoint A B f.
 Proof.
   cbn.
   refine (_ @* pmap_compose_assoc _ _ _).
@@ -388,8 +388,8 @@ Defined.
 
 Definition loop_susp_adjoint_nat_l `{Funext} (A A' B : pType)
            (f : A ->* loops B) (g : A' ->* A)
-: (loop_susp_adjoint A' B)^-1 (f o* g)
-  ==* (loop_susp_adjoint A B)^-1 f o* psusp_functor g.
+: (loop_susp_adjoint A' B)^-1 (f o g)%pmap
+  ==* (loop_susp_adjoint A B)^-1 f o psusp_functor g.
 Proof.
   cbn.
   refine (_ @* (pmap_compose_assoc _ _ _)^*).
