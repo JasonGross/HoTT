@@ -148,9 +148,16 @@ Global Instance symmetric_equiv : Symmetric Equiv | 0 := @equiv_inverse.
 (** If [g \o f] and [f] are equivalences, so is [g].  This is not an Instance because it would require Coq to guess [f]. *)
 Definition cancelR_isequiv {A B C} (f : A -> B) {g : B -> C}
   `{IsEquiv A B f} `{IsEquiv A C (g o f)}
-  : IsEquiv g
-  := isequiv_homotopic (compose (compose g f) f^-1)
-       (fun b => ap g (eisretr f b)).
+  : IsEquiv g.
+  pose (_ : (@IsEquiv B A
+                      (fun x : B =>
+                         @equiv_inv _ _ f _ x))).
+  Typeclasses eauto := debug.
+  Set Printing All.
+  exact (isequiv_homotopic (compose (compose g f) f^-1)
+                            (fun b => ap g (eisretr f b))).
+  Show.
+Admitted.
 
 Definition cancelR_equiv {A B C} (f : A -> B) {g : B -> C}
   `{IsEquiv A B f} `{IsEquiv A C (g o f)}
