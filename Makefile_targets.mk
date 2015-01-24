@@ -57,6 +57,7 @@ CORE_VFILES = \
 	$(srcdir)/theories/Tactics.v \
 	$(srcdir)/theories/Tactics/RewriteModuloAssociativity.v \
 	$(srcdir)/theories/Tactics/BinderApply.v \
+	$(srcdir)/theories/Tactics/Nameless.v \
 	$(srcdir)/theories/TruncType.v \
 	$(srcdir)/theories/PType.v \
 	$(srcdir)/theories/DProp.v \
