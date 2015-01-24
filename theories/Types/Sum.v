@@ -107,6 +107,14 @@ Defined.
 Definition equiv_path_sum {A B : Type} (z z' : A + B)
   := BuildEquiv _ _ _ (@isequiv_path_sum A B z z').
 
+Definition split_path_sum {A B : Type} (z : A + B)
+: ({ a : A & inl a = z }) + ({ b : B & inr b = z }).
+Proof.
+  destruct z.
+  { left; eexists; reflexivity. }
+  { right; eexists; reflexivity. }
+Defined.
+
 (** ** Fibers of [inl] and [inr] *)
 
 (** It follows that the fibers of [inl] and [inr] are decidable hprops. *)
@@ -576,8 +584,8 @@ Proof.
   - intros c; destruct (is_inl_or_is_inr (f c)); reflexivity.
   - intros [[c l]|[c r]]; simpl; destruct (is_inl_or_is_inr (f c)).
     + apply ap, ap, path_ishprop.
-    + elim (not_is_inl_and_inr' _ l i). 
-    + elim (not_is_inl_and_inr' _ i r). 
+    + elim (not_is_inl_and_inr' _ l i).
+    + elim (not_is_inl_and_inr' _ i r).
     + apply ap, ap, path_ishprop.
 Defined.
 
@@ -667,6 +675,18 @@ Definition equiv_unfunctor_sum_contr_ll {A A' B B' : Type}
   := equiv_unfunctor_sum_indecomposable_ll
        (equiv_compose (equiv_functor_sum' equiv_contr_contr
                                           (equiv_idmap B')) h).
+
+Definition equiv_unfunctor_sum_contr_lr {A A' B B' : Type} `{Contr A, Contr B'} (h : A + B <~> A' + B')
+: B <~> A'
+  := equiv_unfunctor_sum_contr_ll (equiv_compose' (equiv_sum_symm _ _) h).
+
+Definition equiv_unfunctor_sum_contr_rl {A A' B B' : Type} `{Contr B, Contr A'} (h : A + B <~> A' + B')
+: A <~> B'
+  := equiv_unfunctor_sum_contr_ll (equiv_compose' h (equiv_sum_symm _ _)).
+
+Definition equiv_unfunctor_sum_contr_rr {A A' B B' : Type} `{Contr B, Contr B'} (h : A + B <~> A' + B')
+: A <~> A'
+  := equiv_unfunctor_sum_contr_ll (equiv_compose' (equiv_sum_symm _ _) (equiv_compose' h (equiv_sum_symm _ _))).
 
 (** ** Universal mapping properties *)
 

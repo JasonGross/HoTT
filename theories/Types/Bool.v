@@ -45,6 +45,21 @@ Global Instance trunc_if n A B `{IsTrunc n A, IsTrunc n B} (b : Bool)
 : IsTrunc n (if b then A else B) | 100
   := if b as b return (IsTrunc n (if b then A else B)) then _ else _.
 
+Definition bool_of_sum {A B} (x : A + B) : Bool := if x then true else false.
+
+Global Instance isequiv_bool_of_sum_unit : IsEquiv (@bool_of_sum Unit Unit).
+Proof.
+  refine (BuildIsEquiv
+            _ _
+            bool_of_sum
+            (fun b => if b then inl tt else inr tt)
+            _ _ _);
+  repeat intros []; reflexivity.
+Defined.
+
+Definition equiv_bool_sum_unit : Unit + Unit <~> Bool
+  := BuildEquiv _ _ bool_of_sum _.
+
 (** ** Decidability *)
 
 Section BoolDecidable.
@@ -68,6 +83,8 @@ Section BoolDecidable.
   Proof.
     exact _.
   Defined.
+
+  Global Instance decidable_bool : Decidable Bool := inl true.
 End BoolDecidable.
 
 (** In particular, [negb] has no fixed points *)

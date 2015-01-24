@@ -1,9 +1,10 @@
 (* -*- mode: coq; mode: visual-line -*- *)
 Require Import HoTT.Basics HoTT.Types.
-Require Import Fibrations Factorization EquivalenceVarieties UnivalenceImpliesFunext HSet.
+Require Import Fibrations Factorization EquivalenceVarieties UnivalenceImpliesFunext HSet DProp.
 Require Import hit.Truncations hit.quotient.
 Import TrM.
 Require Import Spaces.Nat.
+Require Import HoTT.Tactics.Nameless.
 
 Local Open Scope path_scope.
 Local Open Scope equiv_scope.
@@ -19,31 +20,281 @@ Local Open Scope nat_scope.
 Fixpoint Fin (n : nat) : Type
   := match n with
        | 0 => Empty
-       | S n => Fin n + Unit
+       | 1 => Unit
+       | 2 => Bool
+       | n.+1 => Fin n + Unit
      end.
+
+Delimit Scope fin_scope with fin.
+Bind Scope fin_scope with Fin.
+Local Open Scope fin_scope.
+
+(** ** Classification of [Fin] as a sum *)
+Definition equiv_fin_sum {n : nat} : Fin n.+1 <~> Fin n + Unit.
+Proof.
+  destruct n as [|[|n]].
+  { refine equiv_contr_contr.
+    exists (inr tt).
+    intros [[]|[]]; reflexivity. }
+  { exact (equiv_inverse equiv_bool_sum_unit). }
+  { exact (equiv_idmap _). }
+Defined.
+
+Arguments equiv_fin_sum : simpl never.
+
+(** ** Names for elements of [Fin n] *)
+Definition fin_lift {n : nat} : Fin n -> Fin n.+1
+  := match n as n return Fin n -> Fin n.+1 with
+       | 0 => fun x => match x with end
+       | 1 => fun x => true
+       | n.+2 => fun x => inl x
+     end.
+
+Fixpoint fin_zero {n : nat} : Fin n.+1
+  := match n as n return Fin n.+1 with
+       | 0 => tt
+       | n.+1 => fin_lift (@fin_zero n)
+     end.
+
+Declare Equivalent Keys fin_zero fin_lift.
+
+Definition fin_minus_one {n : nat} : Fin n.+1
+  := match n as n return Fin n.+1 with
+       | 0 => tt
+       | 1 => false
+       | n.+1 => inr tt
+     end.
+
+Arguments fin_zero : simpl never.
+Arguments fin_minus_one : simpl nomatch.
+
+Notation "0" := fin_zero : fin_scope.
+Notation "-1" := fin_minus_one : fin_scope.
+
+Definition red_fin_zero {n : nat} : @fin_zero (n.+2) = inl fin_zero
+  := idpath.
+
+Definition red_equiv_fin_sum_fin_lift {n : nat} (k : Fin n) : equiv_fin_sum (fin_lift k) = inl k.
+Proof.
+  destruct n as [|[|[|n]]]; try reflexivity; destruct k; reflexivity.
+Defined.
+
+Definition red_equiv_fin_sum_fin_lift' {n : nat} : @equiv_fin_sum n.+2 = equiv_idmap _
+  := idpath.
+
+Definition red_equiv_fin_sum_last {n : nat} : (@equiv_fin_sum n)^-1 (inr tt) = -1.
+Proof.
+  destruct n as [|[|]]; try reflexivity.
+Defined.
+
+Definition red_equiv_fin_sum_rest {n : nat} (k : Fin n) : equiv_fin_sum^-1 (inl k) = fin_lift k.
+Proof.
+  destruct n as [|[|]]; try reflexivity; destruct k.
+Defined.
+
+(** We define a tactic to go from [Fin n.+1 <~> Fin m.+1] to [Fin n + Unit <~> Fin m + Unit]. *)
+Ltac equiv_fin_to_sum_left :=
+  idtac;
+  match goal with
+    | [ |- _ <~> Fin _.+1 ]
+      => exact (equiv_inverse equiv_fin_sum)
+    | [ |- _ <~> _ + Unit ]
+      => refine (equiv_functor_sum' _ (equiv_idmap Unit)); shelve_unifiable;
+        equiv_fin_to_sum_left
+  end.
+Ltac equiv_fin_to_sum_right :=
+  idtac;
+  match goal with
+    | [ |- Fin _.+1 <~> _ ]
+      => exact equiv_fin_sum
+    | [ |- _ + Unit <~> _ ]
+      => refine (equiv_functor_sum' _ (equiv_idmap Unit)); shelve_unifiable;
+        equiv_fin_to_sum_right
+  end.
+
+Ltac equiv_fin_to_sum :=
+  refine (equiv_compose'
+            _
+            (equiv_compose'
+               _
+               _)); shelve_unifiable;
+  [ equiv_fin_to_sum_left | | equiv_fin_to_sum_right ].
+
+(** ** Transpositions and rotations *)
+(** We define some basic transpositions and rotations to build other terms. *)
+
+(** *** Swap the last two elements. *)
+
+Definition fin_transpose_last_two (n : nat)
+: Fin n.+2 <~> Fin n.+2.
+Proof.
+  do 2 equiv_fin_to_sum.
+  exact (equiv_compose'
+           (equiv_inverse (equiv_sum_assoc _ _ _))
+           (equiv_compose'
+              (equiv_functor_sum' (equiv_idmap _)
+                                  (equiv_sum_symm _ _))
+              (equiv_sum_assoc _ _ _))).
+Defined.
+
+Arguments fin_transpose_last_two : simpl nomatch.
+
+Goal forall n m : nat, n = m -> n = m.
+intros ? ? p.
+induction p.
+
+
+Class RespectsEquivalence {A : Type} (P : forall B, A <~> B -> Type)
+  := respects_equivalence : forall B e, (P A (equiv_idmap _) <~> P B e).
+
+Global Instance respects_equivalence_forall `{Funext} {A X Y} `{HX : @RespectsEquivalence A (fun B e => X B)}
+: RespectsEquivalence (fun B (e : A <~> B) => forall x : X B, Y B x).
+Proof.
+  intros B e.
+  refine (equiv_functor_forall' (equiv_inverse (HX B e)) _).
+  intro x.
+  (forall B (e : A <~> B) (x : X B), @RespectsEquivalence B (fun A' (e' : B <~> A') =>
+  eapply equiv_functor_forall'.
+  Unshelve.
+  Focus 2.
+  hnf in HX.
+  exact (equiv_inverse (HX B e)).
+  Show Proof.
+  instantiate (1 := HX B).
+  pose (equiv_functor_forall' (P := Y) (@HX B e)).
+  Unshelve.
+  Focus 2.
+  hnf in HX.
+  SearchAbout Equiv.
+  `{HY : forall B (e : A <~> B) (x : X B), @RespectsEquivalence B (fun B' e' => X}
+  hnf in HX.
+  pose (fun k => HX
+
+Goal forall A B P Q (e : A <~> B), @sigT A P <~> @sigT B Q.
+Proof.
+  intros.
+  Ltac equiv_induction e :=
+    let y := match type of e with ?x <~> ?y => constr:y end in
+    generalize dependent e;
+      let H := fresh "e" in
+      intro H;
+        move H at top;
+        generalize dependent y;
+        refine (respects_equivalence _); cycle 1;
+        [
+        | ].
+  equiv_induction e.
+
+
+
+(** This one is harder to reason about in general, but gives better judgmental behavior for, say, [fin_succ^-1 -1] *)
+Fixpoint fin_succ_pair {n : nat} : { e : Fin n <~> Fin n | Unit }.
+Proof.
+  destruct n as [|n].
+  { exact (equiv_idmap Empty; tt). }
+  { specialize (fin_succ_pair n).
+    destruct n as [|[|n]].
+    { exact (equiv_idmap Unit; tt). }
+    { exact (equiv_negb; tt). }
+    { refine (equiv_adjointify
+                (fun x : Fin n.+3 => match x with
+                                       | inl x' => _
+                                       | inr tt => 0
+                                     end)
+                (fun x : Fin n.+3 => match x with
+                                       | inl x' => let x'' := fin_succ_pair.1^-1 x' in
+                                                   _
+                                       | inr tt => inl (fin_succ_pair.1^-1 -1)
+                                     end)
+                _ _; _).
+      { destruct n.
+        exact match x' with
+                | false => -1
+                | x'' => fin_lift (fin_succ_pair.1 x'')
+              end.
+        exact match x' with
+                | inr tt => -1
+                | x'' => fin_lift (fin_succ_pair.1 x'')
+              end. }
+      { destruct n.
+        exact match fin_succ_pair.1^-1 x' with
+                | false => -1
+                | x'' => fin_lift x''
+              end.
+        exact match fin_succ_pair.1^-1 x' with
+                | inr tt => -1
+                | x'' => fin_lift x''
+              end. }
+      { destruct n; repeat intros []; cbn.
+destruct n; repeat intros []; reflexivity. }
+    { refine (equiv_compose'
+                _
+                (fin_transpose_last_two _)).
+      equiv_fin_to_sum.
+      exact (equiv_functor_sum' fin_succ (equiv_idmap _)). } }
+Defined.
+
+Arguments fin_succ : simpl nomatch.
+
+Fixpoint fin_succ' {n : nat} : Fin n <~> Fin n.
+Proof.
+  destruct n as [|n].
+  { exact (equiv_idmap Empty). }
+  { specialize (fin_succ' n).
+    destruct n as [|[|n]].
+    { exact (equiv_idmap Unit). }
+    { exact equiv_negb. }
+    { refine (equiv_compose'
+                _
+                (fin_transpose_last_two _)).
+      equiv_fin_to_sum.
+      exact (equiv_functor_sum' fin_succ (equiv_idmap _)). } }
+Defined.
+
+Lemma fin_succ__fin_succ' {n} k : @fin_succ n k = @fin_succ'
+
+Notation fin_pred := fin_succ^-1.
+Notation "@ 'fin_pred' n" := (@fin_succ n)^-1 (at level 10, n at level 8, only parsing).
+
+(** Note that putting the negative numbers at level 0 allows us to override the [- _] notation for negative numbers. *)
+Notation "n .+1" := (fin_succ n) (at level 2, left associativity, format "n .+1") : fin_scope.
+Notation "n .+2" := (n.+1.+1)%fin (at level 2, left associativity, format "n .+2") : fin_scope.
+Notation "n .+3" := (n.+1.+2)%fin (at level 2, left associativity, format "n .+3") : fin_scope.
+Notation "n .+4" := (n.+1.+3)%fin (at level 2, left associativity, format "n .+4") : fin_scope.
+Notation "n .+5" := (n.+1.+4)%fin (at level 2, left associativity, format "n .+5") : fin_scope.
+Notation "n .-1" := (fin_pred n) (at level 2, left associativity, format "n .-1") : fin_scope.
+Notation "n .-2" := (n.-1.-1)%fin (at level 2, left associativity, format "n .-2") : fin_scope.
+Notation "n .-3" := (n.-1.-2)%fin (at level 2, left associativity, format "n .-3") : fin_scope.
+Notation "n .-4" := (n.-1.-3)%fin (at level 2, left associativity, format "n .-4") : fin_scope.
+Notation "n .-5" := (n.-1.-4)%fin (at level 2, left associativity, format "n .-5") : fin_scope.
+Notation "1" := (0.+1)%fin : fin_scope.
+Notation "2" := (1.+1)%fin : fin_scope.
+Notation "-2" := (-1.-1)%fin : fin_scope.
 
 Global Instance decidable_fin (n : nat)
 : Decidable (Fin n).
 Proof.
-  destruct n as [|n]; try exact _.
-  exact (inl (inr tt)).
+  destruct n; try exact _.
+  exact (inl 0%fin).
 Defined.
 
 Global Instance decidablepaths_fin (n : nat)
 : DecidablePaths (Fin n).
 Proof.
+  destruct n as [|[|n]]; try exact _.
   induction n as [|n IHn]; simpl; exact _.
 Defined.
 
-Global Instance contr_fin1 : Contr (Fin 1).
+Definition contr_fin1 : Contr (Fin 1).
 Proof.
-  refine (contr_equiv' Unit (equiv_inverse (sum_empty_l Unit))).
+  exact _.
 Defined.
 
-Definition fin_empty (n : nat) (f : Fin n -> Empty) : n = 0.
+Definition fin_empty (n : nat) (f : Fin n -> Empty) : n = 0%nat.
 Proof.
-  destruct n; [ reflexivity | ].
-  elim (f (inr tt)).
+  destruct n;
+  solve [ reflexivity
+        | elim (f 0%fin) ].
 Defined.
 
 (** ** Transposition equivalences *)
@@ -52,133 +303,292 @@ Defined.
 
 (** *** Swap the last two elements. *)
 
-Definition fin_transpose_last_two (n : nat)
-: Fin n.+2 <~> Fin n.+2
-  := (equiv_compose'
-        (equiv_inverse (equiv_sum_assoc _ _ _))
-     (equiv_compose'
-        (equiv_functor_sum' (equiv_idmap _)
-                            (equiv_sum_symm _ _))
-        (equiv_sum_assoc _ _ _))).
-
-Arguments fin_transpose_last_two : simpl nomatch.
-
 Definition fin_transpose_last_two_last (n : nat)
-: fin_transpose_last_two n (inr tt) = (inl (inr tt))
-  := 1.
+: fin_transpose_last_two n -1 = -2.
+Proof.
+  destruct n; reflexivity.
+Defined.
 
 Definition fin_transpose_last_two_nextlast (n : nat)
-: fin_transpose_last_two n (inl (inr tt)) = (inr tt)
-  := 1.
+: fin_transpose_last_two n -2 = -1.
+Proof.
+  destruct n; try reflexivity.
+  destruct n; reflexivity.
+Defined.
 
 Definition fin_transpose_last_two_rest (n : nat) (k : Fin n)
-: fin_transpose_last_two n (inl (inl k)) = (inl (inl k))
-  := 1.
+: fin_transpose_last_two n (fin_lift (fin_lift k)) = fin_lift (fin_lift k).
+Proof.
+  destruct n; try solve [ destruct k ].
+  destruct n; reflexivity.
+Defined.
+
+Definition fin_transpose_last_two_last' (n : nat)
+: (fin_transpose_last_two n)^-1 -2 = -1.
+Proof.
+  apply (ap (fin_transpose_last_two n))^-1.
+  exact (eisretr _ _ @ (fin_transpose_last_two_last _)^).
+Defined.
+
+Definition fin_transpose_last_two_nextlast' (n : nat)
+: (fin_transpose_last_two n)^-1 -1 = -2.
+Proof.
+  apply (ap (fin_transpose_last_two n))^-1.
+  exact (eisretr _ _ @ (fin_transpose_last_two_nextlast _)^).
+Defined.
+
+Definition fin_transpose_last_two_rest' (n : nat) (k : Fin n)
+: (fin_transpose_last_two n)^-1 (fin_lift (fin_lift k)) = fin_lift (fin_lift k).
+Proof.
+  apply (ap (fin_transpose_last_two n))^-1.
+  exact (eisretr _ _ @ (fin_transpose_last_two_rest _ _)^).
+Defined.
+
+Definition fin_transpose_last_two_last'' (n : nat)
+: fin_transpose_last_two n.+1 (inr tt) = inl -1.
+Proof.
+  rewrite fin_transpose_last_two_last.
+  cbn.
+  unfold equiv_fin_sum.
+  cbn.
+  unfold fin_transpose_last_two.
+  cbn.
+  unfold equiv_fin_sum; cbn.
+
+  rewrite unfold_fin_transpose_last_two.
+  unfold fin_transpose_last_two.
+  cbn.
+  cbn.
+  destruct n; reflexivity.
+Defined.
+
 
 (** *** Swap the last element with [k]. *)
 
-Fixpoint fin_transpose_last_with (n : nat) (k : Fin n.+1)
+Definition fin_transpose_last_with'
+           {fin_transpose_last_with : forall n (k : Fin n.+1), Fin n.+1 <~> Fin n.+1}
+           (n : nat) (k : Fin n.+1)
 : Fin n.+1 <~> Fin n.+1.
 Proof.
-  destruct k as [k|].
-  - destruct n as [|n IH].
-    + elim k.
-    + destruct k as [k|].
+  destruct n as [|n].
+  - exact (@equiv_idmap Unit).
+  - specialize (fin_transpose_last_with n).
+    destruct (equiv_fin_sum k) as [k'|].
+    + destruct (equiv_fin_sum k') as [k''|].
       * refine (equiv_compose'
                   (fin_transpose_last_two n)
                   (equiv_compose' _ (fin_transpose_last_two n))).
+        equiv_fin_to_sum.
         refine (equiv_functor_sum'
-                  (fin_transpose_last_with n (inl k))
+                  (fin_transpose_last_with (fin_lift k''))
                   (equiv_idmap Unit)).
       * apply fin_transpose_last_two.
-  - exact (equiv_idmap _).
+    + exact (equiv_idmap _).
 Defined.
+
+Fixpoint fin_transpose_last_with (n : nat) (k : Fin n.+1) {struct n}
+: Fin n.+1 <~> Fin n.+1
+  := @fin_transpose_last_with' fin_transpose_last_with n k.
+
+Definition unfold_fin_transpose_last_with {n}
+: fin_transpose_last_with n.+1 = @fin_transpose_last_with' fin_transpose_last_with n.+1
+  := idpath.
 
 Arguments fin_transpose_last_with : simpl nomatch.
 
+Local Ltac fin_transpose_last_with_t :=
+  repeat first [ reflexivity
+               | let IHn := hyp in rewrite IHn
+               | let IHn := hyp in let k := hyp in rewrite (IHn k)
+               | let IHn := hyp in let l := hyp in rewrite (IHn _ l)
+               | progress cbn
+               | intro
+               | rewrite red_equiv_fin_sum_fin_lift'
+               | let H := hyp in destruct (H idpath : False)
+               | let H := hyp in enforce (H : Unit); destruct H
+               | let H := hyp in enforce (H : Bool); destruct H
+               | let H := hyp in enforce (H : _ + _); destruct H ].
+
 Definition fin_transpose_last_with_last (n : nat) (k : Fin n.+1)
-: fin_transpose_last_with n k (inr tt) = k.
+: fin_transpose_last_with n k -1 = k.
 Proof.
-  destruct k as [k|].
-  - induction n as [|n IH]; simpl.
-    + elim k.
-    + destruct k as [k|].
-      * simpl. rewrite IH; reflexivity.
-      * simpl. apply ap, ap, path_contr.
-  - (** We have to destruct [n] since fixpoints don't reduce unless their argument is a constructor. *)
-    destruct n; simpl.
-    all:apply ap, path_contr.
+  revert k; induction n.
+  { intros []; reflexivity. }
+  { do 2 try destruct n; fin_transpose_last_with_t.
+    rewrite unfold_fin_transpose_last_with; cbn.
+    fin_transpose_last_with_t.
+    rewrite fin_transpos
+    repeat first [ fail
+          | rewrite fin_transpose_last_two_last
+               | rewrite fin_transpose_last_two_last'
+               | rewrite fin_transpose_last_two_rest
+               | rewrite fin_transpose_last_two_rest'
+               | rewrite fin_transpose_last_two_nextlast
+               | rewrite fin_transpose_last_two_nextlast' ].
+    fin_transpose_last_with_t.
+    repeat first [ fail
+          | rewrite fin_transpose_last_two_last
+               | rewrite fin_transpose_last_two_last'
+               | rewrite fin_transpose_last_two_rest
+               | rewrite fin_transpose_last_two_rest'
+               | rewrite fin_transpose_last_two_nextlast
+               | rewrite fin_transpose_last_two_nextlast' ].
+    Opaque fin_transpose_last_with.
+    cbn.    first [ reflexivity
+               | let IHn := hyp in rewrite IHn
+               | let IHn := hyp in let k := hyp in rewrite (IHn k)
+               | let IHn := hyp in let l := hyp in rewrite (IHn _ l)
+               | progress cbn
+               | intro
+               | rewrite red_equiv_fin_sum_fin_lift'
+               | let H := hyp in destruct (H idpath : False)
+               | let H := hyp in enforce (H : Unit); destruct H
+               | let H := hyp in enforce (H : Bool); destruct H
+               | let H := hyp in enforce (H : _ + _); destruct H ].
+    first [ reflexivity
+               | let IHn := hyp in rewrite IHn
+               | let IHn := hyp in let k := hyp in rewrite (IHn k)
+               | let IHn := hyp in let l := hyp in rewrite (IHn _ l)
+               | progress cbn
+               | intro
+               | rewrite red_equiv_fin_sum_fin_lift'
+               | let H := hyp in destruct (H idpath : False)
+               | let H := hyp in enforce (H : Unit); destruct H
+               | let H := hyp in enforce (H : Bool); destruct H
+               | let H := hyp in enforce (H : _ + _); destruct H ].
+    first [ reflexivity
+               | let IHn := hyp in rewrite IHn
+               | let IHn := hyp in let k := hyp in rewrite (IHn k)
+               | let IHn := hyp in let l := hyp in rewrite (IHn _ l)
+               | progress cbn
+               | intro
+               | rewrite red_equiv_fin_sum_fin_lift'
+               | let H := hyp in destruct (H idpath : False)
+               | let H := hyp in enforce (H : Unit); destruct H
+               | let H := hyp in enforce (H : Bool); destruct H
+               | let H := hyp in enforce (H : _ + _); destruct H ].
+    first [ reflexivity
+               | let IHn := hyp in rewrite IHn
+               | let IHn := hyp in let k := hyp in rewrite (IHn k)
+               | let IHn := hyp in let l := hyp in rewrite (IHn _ l)
+               | progress cbn
+               | intro
+               | rewrite red_equiv_fin_sum_fin_lift'
+               | let H := hyp in destruct (H idpath : False)
+               | let H := hyp in enforce (H : Unit); destruct H
+               | let H := hyp in enforce (H : Bool); destruct H
+               | let H := hyp in enforce (H : _ + _); destruct H ].
+    fin_transpose_last_with_t.
+
+    repeat change (@inr (Fin ?n) Unit tt) with (@fin_minus_one n).
+    rewrite fin_transpose_last_two_nextlast'.
+    unfold fin_transpose_last_two.
+    cbn.
+
+    cbn.
+    unfold functor_sum at 2.
+
+    rewrite red_equiv_fin_sum_fin_lift'.
+    unfold fin_transpose_last_with.
+    cbn.
+do 2 try destruct n; fin_transpose_last_with_t. }
 Qed.
 
 Definition fin_transpose_last_with_with (n : nat) (k : Fin n.+1)
-: fin_transpose_last_with n k k = inr tt.
+: fin_transpose_last_with n k k = -1.
 Proof.
-  destruct k as [k|].
-  - induction n as [|n IH]; simpl.
-    + elim k.
-    + destruct k as [|k]; simpl.
-      * rewrite IH; reflexivity.
-      * apply ap, path_contr.
-  - destruct n; simpl.
-    all:apply ap, path_contr.
+  revert k; induction n.
+  { intros []; reflexivity. }
+  { do 2 try destruct n; fin_transpose_last_with_t. }
 Qed.
 
 Definition fin_transpose_last_with_rest (n : nat)
            (k : Fin n.+1) (l : Fin n)
-           (notk : k <> inl l)
-: fin_transpose_last_with n k (inl l) = (inl l).
+           (notk : k <> fin_lift l)
+: fin_transpose_last_with n k (fin_lift l) = (fin_lift l).
 Proof.
-  destruct k as [k|].
-  - induction n as [|n IH]; simpl.
-    1:elim k.
-    destruct k as [k|]; simpl.
-    { destruct l as [l|]; simpl.
-      - rewrite IH.
-        + reflexivity.
-        + exact (fun p => notk (ap inl p)).
-      - reflexivity. }
-    { destruct l as [l|]; simpl.
-      - reflexivity.
-      - elim (notk (ap inl (ap inr (path_unit _ _)))). }
-  - destruct n; reflexivity.
+  induction n as [|n IH]; cbn.
+  { elim l. }
+  { do 2 try destruct n;
+    fin_transpose_last_with_t.
+    let H := hyp in
+    destruct (notk (ap inl H)). }
 Qed.
 
-Definition fin_transpose_last_with_last_other (n : nat) (k : Fin n.+1)
-: fin_transpose_last_with n (inr tt) k = k.
+Definition fin_transpose_last_with_rest' (n : nat)
+           (k : Fin n.+3) (l : Fin n.+2)
+           (notk : k <> inl l)
+: fin_transpose_last_with n.+2 k (inl l) = (inl l)
+  := fin_transpose_last_with_rest _ k l notk.
+
+Definition fin_transpose_last_with_rest'' (n : nat)
+           (k : Fin n.+1) (l : Fin n)
+           (notk : equiv_fin_sum k <> inl l)
+: fin_transpose_last_with n k (equiv_fin_sum^-1 (inl l)) = equiv_fin_sum^-1 (inl l).
 Proof.
-  destruct n; reflexivity.
+  destruct n as [|[|]]; simpl;
+  try solve [ reflexivity
+            | destruct k; reflexivity
+            | exact (fin_transpose_last_with_rest _ _ l notk)
+            | (repeat let H := hyp in destruct H; try reflexivity); reflexivity ].
+Defined.
+
+Definition fin_transpose_last_with_last_other (n : nat) (k : Fin n.+1)
+: fin_transpose_last_with n -1 k = k.
+Proof.
+  do 2 try destruct n; reflexivity.
 Qed.
 
 Definition fin_transpose_last_with_invol (n : nat) (k : Fin n.+1)
 : fin_transpose_last_with n k o fin_transpose_last_with n k == idmap.
 Proof.
-  intros l.
-  destruct l as [l|[]].
-  - destruct k as [k|[]].
-    { destruct (dec_paths k l) as [p|p].
-      - rewrite p.
-        rewrite fin_transpose_last_with_with.
-        apply fin_transpose_last_with_last.
-      - rewrite fin_transpose_last_with_rest;
-          try apply fin_transpose_last_with_rest;
-          exact (fun q => p (path_sum_inl _ q)). }
-    + rewrite fin_transpose_last_with_last_other.
-      apply fin_transpose_last_with_last_other.
-  - rewrite fin_transpose_last_with_last.
-    apply fin_transpose_last_with_with.
+  intro l.
+  destruct (dec_paths k l) as [p|p]; path_induction;
+  do 3 try destruct n;
+  repeat first [ reflexivity
+               | assumption
+               | rewrite fin_transpose_last_with_with
+               | rewrite fin_transpose_last_with_last
+               | rewrite fin_transpose_last_with_rest'
+               | let H := hyp in enforce (H : Unit); destruct H
+               | let H := hyp in enforce (H : Bool); destruct H
+               | let H := hyp in enforce (H : _ + _); destruct H ].
 Qed.
 
 (** ** Equivalences between canonical finite sets *)
 
 (** To give an equivalence [Fin n.+1 <~> Fin m.+1] is equivalent to giving an element of [Fin m.+1] (the image of the last element) together with an equivalence [Fin n <~> Fin m].  More specifically, any such equivalence can be decomposed uniquely as a last-element transposition followed by an equivalence fixing the last element.  *)
 
+(** If two canonical finite sets are equivalent, then their cardinalities are equal. *)
+Definition nat_eq_fin_equiv (n m : nat)
+: (Fin n <~> Fin m) -> (n = m).
+Proof.
+  revert m; induction n as [|n IHn]; destruct m as [|m]; intros e.
+  - exact idpath.
+  - elim (e^-1 0).
+  - elim (e 0).
+  - refine (ap S (IHn m _)).
+    pose proof (equiv_compose'
+                  equiv_fin_sum
+                  (equiv_compose'
+                     e (equiv_inverse equiv_fin_sum))) as e'.
+    apply equiv_unfunctor_sum_contr_ll in e'.
+    exact e'.
+Qed.
+
 (** Here is the uncurried map that constructs an equivalence [Fin n.+1 <~> Fin m.+1]. *)
 Definition fin_equiv (n m : nat)
            (k : Fin m.+1) (e : Fin n <~> Fin m)
-: Fin n.+1 <~> Fin m.+1
-  := (equiv_compose'
-        (fin_transpose_last_with m k)
-        (equiv_functor_sum' e (equiv_idmap Unit))).
+: Fin n.+1 <~> Fin m.+1.
+Proof.
+  refine (equiv_compose'
+            (fin_transpose_last_with m k)
+            (equiv_compose'
+               (equiv_inverse equiv_fin_sum)
+               (equiv_compose'
+                  (equiv_functor_sum' e (equiv_idmap Unit))
+                  equiv_fin_sum))).
+Defined.
 
 (** Here is the curried version that we will prove to be an equivalence. *)
 Definition fin_equiv' (n m : nat)
@@ -189,31 +599,59 @@ Definition fin_equiv' (n m : nat)
 Definition fin_equiv_hfiber (n m : nat) (e : Fin n.+1 <~> Fin m.+1)
 : { kf : (Fin m.+1) * (Fin n <~> Fin m) & fin_equiv' n m kf == e }.
 Proof.
-  simpl in e.
+  (*pose proof (ap pred (nat_eq_fin_equiv _ _ e)) as H.
+  simpl in H.
+  destruct H.*)
   refine (equiv_sigma_prod _ _).
-  recall (e (inr tt)) as y eqn:p.
+  recall (e -1) as y eqn:p.
   assert (p' := (moveL_equiv_V _ _ p)^).
   exists y.
+  generalize dependent y.
+  intro y.
+  destruct (eissect equiv_fin_sum y).
+  generalize (equiv_fin_sum y); clear y; intro y; intros.
   destruct y as [y|[]].
-  + refine (equiv_unfunctor_sum_l
+  + refine (equiv_unfunctor_sum_contr_ll
               (equiv_compose'
-                 (fin_transpose_last_with m (inl y))
-                 e)
-              _ _ ; _).
+                 equiv_fin_sum
+                 (equiv_compose'
+                    (equiv_compose'
+                       (fin_transpose_last_with m (fin_lift y))
+                       e)
+                    (equiv_inverse equiv_fin_sum)))
+            ; _).
     { intros a. ev_equiv.
-      assert (q : inl y <> e (inl a))
+      rewrite ?red_equiv_fin_sum_rest.
+      Opaque equiv_fin_sum fin_lift.
+      cbn.
+      rewrite <- (eissect equiv_fin_sum) (e' (equiv_fin_sum^-1 (inl a)))).
+      assert (q : fin_lift y <> e a)
         by exact (fun z => inl_ne_inr _ _ (equiv_inj e (z^ @ p^))).
+      change (equiv_fin_sum (e' (equiv_fin_sum^-1 (inl a)))) with (e (inl a)).
       set (z := e (inl a)) in *.
       destruct z as [z|[]].
-      - rewrite fin_transpose_last_with_rest;
+      - rewrite fin_transpose_last_with_rest'';
+        rewrite ?eisretr, ?eissect, ?red_equiv_fin_sum_fin_lift;
         try exact tt; try assumption.
-      - rewrite fin_transpose_last_with_last; exact tt. }
+      - rewrite ?red_equiv_fin_sum_last, fin_transpose_last_with_last, ?red_equiv_fin_sum_fin_lift; exact tt. }
     { intros []. ev_equiv.
+      subst e; cbn in *.
+      apply (ap (equiv_fin_sum^-1)) in p.
+      rewrite eissect in p.
       rewrite p.
-      rewrite fin_transpose_last_with_with; exact tt. }
-    intros x. unfold fst, snd; ev_equiv. simpl.
-    destruct x as [x|[]]; simpl.
-    * rewrite unfunctor_sum_l_beta.
+      rewrite red_equiv_fin_sum_rest, fin_transpose_last_with_with, <- red_equiv_fin_sum_last, eisretr; exact tt. }
+    intros x'. unfold fst, snd; ev_equiv. simpl.
+    rewrite <- (eissect equiv_fin_sum x').
+    destruct (equiv_fin_sum x') as [x|[]]; simpl.
+    * repeat match goal with
+               | _ => let H := hyp in enforce (H : Empty); destruct H
+               | _ => let H := hyp in enforce (H : Unit); destruct H
+               | [ |- context[match ?E with _ => _ end] ] => atomic E; destruct E
+             end.
+     cbn.
+     subst e.
+     cbn in *.
+ .rewrite unfunctor_sum_l_beta.
       apply fin_transpose_last_with_invol.
     * refine (fin_transpose_last_with_last _ _ @ p^).
   + refine (equiv_unfunctor_sum_l e _ _ ; _).
@@ -233,6 +671,19 @@ Proof.
       rewrite fin_transpose_last_with_last.
       symmetry; apply p.
 Qed.
+
+
+  { destruct m as [|[|m]].
+    { destruct n as [|[|n]].
+      { exists (equiv_idmap Empty).
+        intro; apply path_ishprop. }
+      { solve [ assert (Contr Bool) by (let e := hyp in exact (contr_equiv' _ (equiv_inverse e)));
+                refine (match _ : Empty with end); apply true_ne_false; apply path_ishprop ]. }
+      {
+        intros []; simpl.
+        destruct (e tt); reflexivity. }
+
+      { }
 
 Definition fin_equiv_inv (n m : nat) (e : Fin n.+1 <~> Fin m.+1)
 : (Fin m.+1) * (Fin n <~> Fin m)
@@ -342,7 +793,7 @@ Corollary finite_equiv_equiv X Y
 : (X <~> Y) -> (Finite X <~> Finite Y).
 Proof.
   intros ?; apply equiv_iff_hprop; apply finite_equiv';
-    [ assumption | symmetry; assumption ]. 
+    [ assumption | symmetry; assumption ].
 Defined.
 
 Definition fcard_equiv {X Y} (e : X -> Y) `{IsEquiv X Y e}
