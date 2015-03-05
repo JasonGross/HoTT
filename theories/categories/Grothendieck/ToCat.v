@@ -2,7 +2,7 @@
 Require Import Category.Core Functor.Core NaturalTransformation.Core.
 Require Import Pseudofunctor.Core Pseudofunctor.FromFunctor.
 Require Import Cat.Core.
-Require Import Grothendieck.PseudofunctorToCat.
+Require Import Grothendieck.PseudofunctorToCat.Core.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
