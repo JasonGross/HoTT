@@ -1,7 +1,7 @@
 (** * Grothendieck Construction of a functor to Set *)
 Require Import Category.Core Functor.Core.
 Require Import SetCategory.Core.
-Require Import Basics.Trunc HSet Types.Sigma TruncType.
+Require Import Basics.Trunc HSet Types.Sigma TruncType Types.Record.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
@@ -40,6 +40,11 @@ Section Grothendieck.
       c : C;
       x : F c
     }.
+
+  Definition issig_pair : { c : C | F c } <~> Pair.
+  Proof.
+    issig Build_Pair c x.
+  Defined.
 
   Local Notation morphism s d :=
     { f : morphism C s.(c) d.(c)
