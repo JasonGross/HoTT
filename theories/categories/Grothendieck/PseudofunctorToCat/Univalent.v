@@ -8,7 +8,7 @@ Require Import FunctorCategory.Core.
 Require Import Category.Morphisms FunctorCategory.Morphisms.
 Require Import Functor.Composition.Core.
 Require Import Cat.Core.
-Require Import Grothendieck.PseudofunctorToCat.Core Grothendieck.PseudofunctorToCatMorphisms.Univalent.
+Require Import Grothendieck.PseudofunctorToCat.Core Grothendieck.PseudofunctorToCat.Morphisms.
 From HoTT.Basics Require Import Equivalences Trunc PathGroupoids.
 From HoTT.Types Require Import Universe Paths Sigma.
 Require Import HoTT.UnivalenceImpliesFunext.

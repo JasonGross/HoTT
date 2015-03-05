@@ -81,8 +81,8 @@ Section Grothendieck.
         | [ |- context[transport ?P ?p ?x] ]
           => rewrite (transport_compose
                         (fun e : morphism _ _ _ =>
-                           ((p_morphism_of F e) (PseudofunctorToCat.x s) <~=~>
-                                                PseudofunctorToCat.x d)%category)
+                           ((p_morphism_of F e) (PseudofunctorToCat.Core.x s) <~=~>
+                                                PseudofunctorToCat.Core.x d)%category)
                         (fun e : (c s <~=~> c d)%category => e : morphism _ _ _)
                         p)
       end.
