@@ -206,10 +206,7 @@ Defined.
 (** We bind [path_scope] to [paths] so that when we are constructing arguments to things like [concat], we automatically are in [path_scope]. *)
 Bind Scope path_scope with paths.
 
-(** See above for the meaning of [simpl nomatch]. *)
-Arguments concat {A x y z} p q : simpl nomatch.
-
-Instance transitive_paths {A} : Transitive (@paths A) | 0 := @concat A.
+Local Open Scope path_scope.
 
 (** The inverse of a path. *)
 Definition inverse {A : Type} {x y : A} (p : x = y) : y = x
