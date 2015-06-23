@@ -11,7 +11,7 @@ Import InitialTerminalCategory.Functors.InitialTerminalCategoryFunctorsNotations
 Require Import NatCategory.
 Require Import Functor.Paths NaturalTransformation.Paths.
 Require Import Comma.Core.
-Require Import Equivalences Unit HoTT.Tactics types.Forall PathGroupoids.
+Require Import HoTT.Basics.Equivalences HoTT.Types.Unit HoTT.Tactics HoTT.Types.Forall HoTT.Basics.PathGroupoids.
 
 Set Universe Polymorphism.
 Set Implicit Arguments.
