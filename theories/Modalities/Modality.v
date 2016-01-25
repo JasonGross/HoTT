@@ -529,9 +529,9 @@ Section ConnectedTypes.
       intros []; apply equiv_idmap.
   Defined.
 
-  Definition ooextendable_const_isconnected_inO
-             (A : Type@{i}) `{IsConnected@{u a i} O A}
-             (C : Type@{j}) `{In@{u a j} O C}
+  Definition ooextendable_const_isconnected_inO@{i j k}
+             (A : Type@{i}) `{IsConnected@{Ou Oa i} O A}
+             (C : Type@{j}) `{In@{Ou Oa j} O C}
   : ooExtendableAlong (@const A Unit tt) (fun _ => C)
     := fun n => extendable_const_isconnected_inO@{i j k k j} n A C.
 
