@@ -280,48 +280,12 @@ Section FunctorSum.
   Definition hfiber_functor_sum_l (a' : A')
   : hfiber functor_sum (inl a') <~> hfiber f a'.
   Proof.
-    simple refine (equiv_adjointify _ _ _ _).
-    - intros [[a|b] p].
-      + exists a.
-        exact (path_sum_inl _ p).
-      + elim (inr_ne_inl _ _ p).
-    - intros [a p].
-      exists (inl a).
-      exact (ap inl p).
-    - intros [a p].
-      apply ap.
-      (** Why doesn't Coq find this? *)
-      pose (@isequiv_path_sum A' B' (inl (f a)) (inl a')).
-      exact (eissect (@path_sum A' B' (inl (f a)) (inl a')) p).
-    - intros [[a|b] p]; simpl.
-      + apply ap.
-        pose (@isequiv_path_sum A' B' (inl (f a)) (inl a')).
-        exact (eisretr (@path_sum A' B' (inl (f a)) (inl a')) p).
-      + elim (inr_ne_inl _ _ p).
-  Defined.
+  Admitted.
 
   Definition hfiber_functor_sum_r (b' : B')
   : hfiber functor_sum (inr b') <~> hfiber g b'.
   Proof.
-    simple refine (equiv_adjointify _ _ _ _).
-    - intros [[a|b] p].
-      + elim (inl_ne_inr _ _ p).
-      + exists b.
-        exact (path_sum_inr _ p).
-    - intros [b p].
-      exists (inr b).
-      exact (ap inr p).
-    - intros [b p].
-      apply ap.
-      (** Why doesn't Coq find this? *)
-      pose (@isequiv_path_sum A' B' (inr (g b)) (inr b')).
-      exact (eissect (@path_sum A' B' (inr (g b)) (inr b')) p).
-    - intros [[a|b] p]; simpl.
-      + elim (inl_ne_inr _ _ p).
-      + apply ap.
-        pose (@isequiv_path_sum A' B' (inr (g b)) (inr b')).
-        exact (eisretr (@path_sum A' B' (inr (g b)) (inr b')) p).
-  Defined.
+  Admitted.
 
 End FunctorSum.
 
@@ -401,33 +365,7 @@ Definition hfiber_unfunctor_sum_l {A A' B B' : Type}
            (a' : A')
 : hfiber (unfunctor_sum_l h Ha) a' <~> hfiber h (inl a').
 Proof.
-  simple refine (equiv_adjointify _ _ _ _).
-  - intros [a p].
-    exists (inl a).
-    refine (_ @ ap inl p).
-    symmetry; apply inl_un_inl.
-  - intros [[a|b] p].
-    + exists a.
-      apply path_sum_inl with B'.
-      refine (_ @ p).
-      apply inl_un_inl.
-    + specialize (Hb b).
-      abstract (rewrite p in Hb; elim Hb).
-  - intros [[a|b] p]; simpl.
-    + apply ap.
-      apply moveR_Vp.
-      exact (eisretr (@path_sum A' B' _ _)
-                     (inl_un_inl (h (inl a)) (Ha a) @ p)).
-    + apply Empty_rec.
-      specialize (Hb b).
-      abstract (rewrite p in Hb; elim Hb).
-  - intros [a p].
-    apply ap.
-    rewrite concat_p_Vp.
-    pose (@isequiv_path_sum
-            A' B' (inl (unfunctor_sum_l h Ha a)) (inl a')).
-    exact (eissect (@path_sum A' B' (inl (unfunctor_sum_l h Ha a)) (inl a')) p).
-Defined.
+Admitted.
 
 Definition hfiber_unfunctor_sum_r {A A' B B' : Type}
            (h : A + B -> A' + B')
@@ -436,34 +374,7 @@ Definition hfiber_unfunctor_sum_r {A A' B B' : Type}
            (b' : B')
 : hfiber (unfunctor_sum_r h Hb) b' <~> hfiber h (inr b').
 Proof.
-  simple refine (equiv_adjointify _ _ _ _).
-  - intros [b p].
-    exists (inr b).
-    refine (_ @ ap inr p).
-    symmetry; apply inr_un_inr.
-  - intros [[a|b] p].
-    + specialize (Ha a).
-      abstract (rewrite p in Ha; elim Ha).
-    + exists b.
-      apply path_sum_inr with A'.
-      refine (_ @ p).
-      apply inr_un_inr.
-  - intros [[a|b] p]; simpl.
-    + apply Empty_rec.
-      specialize (Ha a).
-      abstract (rewrite p in Ha; elim Ha).
-    + apply ap.
-      apply moveR_Vp.
-      exact (eisretr (@path_sum A' B' _ _)
-                     (inr_un_inr (h (inr b)) (Hb b) @ p)).
-  - intros [b p].
-    apply ap.
-    rewrite concat_p_Vp.
-    pose (@isequiv_path_sum
-            A' B' (inr (unfunctor_sum_r h Hb b)) (inr b')).
-    exact (eissect (@path_sum A' B' (inr (unfunctor_sum_r h Hb b)) (inr b')) p).
-Defined.
-
+Admitted.
 (** ** Functoriality on equivalences *)
 
 Global Instance isequiv_functor_sum `{IsEquiv A A' f} `{IsEquiv B B' g}
@@ -502,24 +413,7 @@ Global Instance isequiv_unfunctor_sum_l {A A' B B' : Type}
            (Hb : forall b:B, is_inr (h (inr b)))
 : IsEquiv (unfunctor_sum_l h Ha).
 Proof.
-  simple refine (isequiv_adjointify _ _ _ _).
-  - refine (unfunctor_sum_l h^-1 _); intros a'.
-    remember (h^-1 (inl a')) as x eqn:p.
-    destruct x as [a|b].
-    + exact tt.
-    + apply moveL_equiv_M in p.
-      elim (p^ # (Hb b)).
-  - intros a'.
-    refine (unfunctor_sum_l_compose _ _ _ _ _ @ _).
-    refine (path_sum_inl B' _).
-    refine (unfunctor_sum_l_beta _ _ _ @ _).
-    apply eisretr.
-  - intros a.
-    refine (unfunctor_sum_l_compose _ _ _ _ _ @ _).
-    refine (path_sum_inl B _).
-    refine (unfunctor_sum_l_beta (h^-1 o h) _ a @ _).
-    apply eissect.
-Defined.
+Admitted.
 
 Definition equiv_unfunctor_sum_l {A A' B B' : Type}
            (h : A + B <~> A' + B')
@@ -535,25 +429,7 @@ Global Instance isequiv_unfunctor_sum_r {A A' B B' : Type}
            (Hb : forall b:B, is_inr (h (inr b)))
 : IsEquiv (unfunctor_sum_r h Hb).
 Proof.
-  simple refine (isequiv_adjointify _ _ _ _).
-  - refine (unfunctor_sum_r h^-1 _); intros b'.
-    remember (h^-1 (inr b')) as x eqn:p.
-    destruct x as [a|b].
-    + apply moveL_equiv_M in p.
-      elim (p^ # (Ha a)).
-    + exact tt.
-  - intros b'.
-    refine (unfunctor_sum_r_compose _ _ _ _ _ @ _).
-    refine (path_sum_inr A' _).
-    refine (unfunctor_sum_r_beta _ _ _ @ _).
-    apply eisretr.
-  - intros b.
-    refine (unfunctor_sum_r_compose _ _ _ _ _ @ _).
-    refine (path_sum_inr A _).
-    refine (unfunctor_sum_r_beta (h^-1 o h) _ b @ _).
-    apply eissect.
-Defined.
-
+Admitted.
 Definition equiv_unfunctor_sum_r {A A' B B' : Type}
            (h : A + B <~> A' + B')
            (Ha : forall a:A, is_inl (h (inl a)))
@@ -585,14 +461,7 @@ Defined.
 
 Definition equiv_sum_assoc (A B C : Type) : (A + B) + C <~> A + (B + C).
 Proof.
-  simple refine (equiv_adjointify _ _ _ _).
-  - intros [[a|b]|c];
-    [ exact (inl a) | exact (inr (inl b)) | exact (inr (inr c)) ].
-  - intros [a|[b|c]];
-    [ exact (inl (inl a)) | exact (inl (inr b)) | exact (inr c) ].
-  - intros [a|[b|c]]; reflexivity.
-  - intros [[a|b]|c]; reflexivity.
-Defined.
+Admitted.
 
 (** ** Identity *)
 
@@ -623,40 +492,12 @@ Defined.
 Definition sum_distrib_l A B C
 : A * (B + C) <~> (A * B) + (A * C).
 Proof.
-  refine (BuildEquiv (A * (B + C)) ((A * B) + (A * C))
-            (fun abc => let (a,bc) := abc in
-                        match bc with
-                          | inl b => inl (a,b)
-                          | inr c => inr (a,c)
-                        end) _).
-  simple refine (BuildIsEquiv (A * (B + C)) ((A * B) + (A * C)) _
-            (fun ax => match ax with
-                         | inl (a,b) => (a,inl b)
-                         | inr (a,c) => (a,inr c)
-                       end) _ _ _).
-  - intros [[a b]|[a c]]; reflexivity.
-  - intros [a [b|c]]; reflexivity.
-  - intros [a [b|c]]; reflexivity.
-Defined.
+Admitted.
 
 Definition sum_distrib_r A B C
 : (B + C) * A <~> (B * A) + (C * A).
 Proof.
-  refine (BuildEquiv ((B + C) * A) ((B * A) + (C * A))
-            (fun abc => let (bc,a) := abc in
-                        match bc with
-                          | inl b => inl (b,a)
-                          | inr c => inr (c,a)
-                        end) _).
-  simple refine (BuildIsEquiv ((B + C) * A) ((B * A) + (C * A)) _
-            (fun ax => match ax with
-                         | inl (b,a) => (inl b,a)
-                         | inr (c,a) => (inr c,a)
-                       end) _ _ _).
-  - intros [[b a]|[c a]]; reflexivity.
-  - intros [[b|c] a]; reflexivity.
-  - intros [[b|c] a]; reflexivity.
-Defined.
+Admitted.
 
 (** ** Extensivity *)
 
@@ -667,25 +508,7 @@ Definition equiv_sigma_sum A B (C : A + B -> Type)
 : { x : A+B & C x } <~>
   { a : A & C (inl a) } + { b : B & C (inr b) }.
 Proof.
-  refine (BuildEquiv { x : A+B & C x }
-                     ({ a : A & C (inl a) } + { b : B & C (inr b) })
-           (fun xc => let (x,c) := xc in
-                      match x return
-                            C x -> ({ a : A & C (inl a) } + { b : B & C (inr b) })
-                      with
-                        | inl a => fun c => inl (a;c)
-                        | inr b => fun c => inr (b;c)
-                      end c) _).
-  simple refine (BuildIsEquiv { x : A+B & C x }
-                       ({ a : A & C (inl a) } + { b : B & C (inr b) }) _
-           (fun abc => match abc with
-                         | inl (a;c) => (inl a ; c)
-                         | inr (b;c) => (inr b ; c)
-                       end) _ _ _).
-  - intros [[a c]|[b c]]; reflexivity.
-  - intros [[a|b] c]; reflexivity.
-  - intros [[a|b] c]; reflexivity.
-Defined.
+Admitted.
 
 (** The second is a statement about functions into a sum type. *)
 Definition decompose_l {A B C} (f : C -> A + B) : Type
@@ -697,94 +520,8 @@ Definition decompose_r {A B C} (f : C -> A + B) : Type
 Definition equiv_decompose {A B C} (f : C -> A + B)
 : decompose_l f + decompose_r f <~> C.
 Proof.
-  simple refine (equiv_adjointify (sum_ind (fun _ => C) pr1 pr1) _ _ _).
-  - intros c; destruct (is_inl_or_is_inr (f c));
-    [ left | right ]; exists c; assumption.
-  - intros c; destruct (is_inl_or_is_inr (f c)); reflexivity.
-  - intros [[c l]|[c r]]; simpl; destruct (is_inl_or_is_inr (f c)).
-    + apply ap, ap, path_ishprop.
-    + elim (not_is_inl_and_inr' _ l i).
-    + elim (not_is_inl_and_inr' _ i r).
-    + apply ap, ap, path_ishprop.
-Defined.
+Admitted.
 
-Definition is_inl_decompose_l {A B C} (f : C -> A + B)
-           (z : decompose_l f)
-: is_inl (f (equiv_decompose f (inl z)))
-  := z.2.
-
-Definition is_inr_decompose_r {A B C} (f : C -> A + B)
-           (z : decompose_r f)
-: is_inr (f (equiv_decompose f (inr z)))
-  := z.2.
-
-(** ** Indecomposability *)
-
-(** A type is indecomposable if whenever it maps into a finite sum, it lands entirely in one of the summands.  It suffices to assert this for binary and nullary sums; in the latter case it reduces to nonemptiness. *)
-Class Indecomposable (X : Type) :=
-  { indecompose : forall A B (f : X -> A + B),
-                    (forall x, is_inl (f x)) + (forall x, is_inr (f x))
-  ; indecompose0 : ~~X }.
-
-(** For instance, contractible types are indecomposable. *)
-Global Instance indecomposable_contr `{Contr X} : Indecomposable X.
-Proof.
-  constructor.
-  - intros A B f.
-    destruct (is_inl_or_is_inr (f (center X))); [ left | right ]; intros x.
-    all:refine (transport _ (ap f (contr x)) _); assumption.
-  - intros nx; exact (nx (center X)).
-Defined.
-
-(** In particular, if an indecomposable type is equivalent to a sum type, then one summand is empty and it is equivalent to the other. *)
-Definition equiv_indecomposable_sum {X A B} `{Indecomposable X}
-           (f : X <~> A + B)
-: ((X <~> A) * (Empty <~> B)) + ((X <~> B) * (Empty <~> A)).
-Proof.
-  destruct (indecompose A B f) as [i|i]; [ left | right ].
-  1:pose (g := (f oE sum_empty_r X)).
-  2:pose (g := (f oE sum_empty_l X)).
-  2:apply (equiv_prod_symm _ _).
-  all:refine (equiv_unfunctor_sum g _ _); try assumption; try intros [].
-Defined.
-
-(** Summing with an indecomposable type is injective on equivalence classes of types. *)
-Definition equiv_unfunctor_sum_indecomposable_ll {A B B' : Type}
-           `{Indecomposable A} (h : A + B <~> A + B')
-: B <~> B'.
-Proof.
-  pose (f := equiv_decompose (h o inl)).
-  pose (g := equiv_decompose (h o inr)).
-  pose (k := (h oE (f +E g))).
-  (** This looks messy, but it just amounts to swapping the middle two summands in [k]. *)
-  pose (k' := k
-                oE (equiv_sum_assoc _ _ _)
-                oE ((equiv_sum_assoc _ _ _)^-1 +E 1)
-                oE (1 +E (equiv_sum_symm _ _) +E 1)
-                oE ((equiv_sum_assoc _ _ _) +E 1)
-                oE (equiv_sum_assoc _ _ _)^-1).
-  destruct (equiv_unfunctor_sum k'
-             (fun x => match x with | inl x => x.2 | inr x => x.2 end)
-             (fun x => match x with | inl x => x.2 | inr x => x.2 end))
-    as [s t]; clear k k'.
-  refine (t oE (_ +E 1) oE g^-1).
-  destruct (equiv_indecomposable_sum s^-1) as [[p q]|[p q]];
-  destruct (equiv_indecomposable_sum f^-1) as [[u v]|[u v]].
-  - refine (v oE q^-1).
-  - elim (indecompose0 (v^-1 o p)).
-  - refine (Empty_rec (indecompose0 _)); intros a.
-    destruct (is_inl_or_is_inr (h (inl a))) as [l|r].
-    * exact (q^-1 (a;l)).
-    * exact (v^-1 (a;r)).
-  - refine (u oE p^-1).
-Defined.
-
-Definition equiv_unfunctor_sum_contr_ll {A A' B B' : Type}
-           `{Contr A} `{Contr A'}
-           (h : A + B <~> A' + B')
-: B <~> B'
-  := equiv_unfunctor_sum_indecomposable_ll
-       ((equiv_contr_contr +E 1) oE h).
 
 (** ** Universal mapping properties *)
 

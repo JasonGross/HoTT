@@ -95,7 +95,7 @@ Ltac pull_app term f :=
            | ?term' (f x) => constr:((x, term'))
          end
   end.
-
+(*
 Ltac infer_path_forall_recr_beta term :=
   let path_forall_recr_beta' :=
       match term with
@@ -157,7 +157,7 @@ Proof.
   transport_path_forall_hammer.
   reflexivity.
 Qed.
-
+*)
 (** ** A more powerful variant of [path_induction] *)
 (** We first define some helper tactics, and then define [path_induction_hammer], which has poor computational behavior, but is vastly more powerful than [path_induction], and removes paths which are discoverably contractible, and paths which only appear in the goal, etc. *)
 
@@ -407,9 +407,10 @@ Ltac destruct_head_hnf T := destruct_all_matches ltac:(destruct_head_hnf_matcher
 Ltac destruct_head_hnf' T := destruct_all_matches' ltac:(destruct_head_hnf_matcher T).
 
 (** Turns a context object, obtained via, e.g., [match goal with |- context G[...] => ... end], into a lambda / gallina function. *)
-Ltac context_to_lambda G :=
+(*Ltac context_to_lambda G :=
   let ret := constr:(fun x => let k := x in
                               ltac:(
                                 let ret := context G[k] in
                                 exact ret)) in
   (eval cbv zeta in ret).
+*)

@@ -187,7 +187,7 @@ Global Arguments path_functor_uncurried : simpl never.
 
     This allows lemmas like [path_functor_uncurried_fst] to apply more
     easily. *)
-Ltac push_ap_object_of' :=
+(*Ltac push_ap_object_of' :=
   idtac;
   match goal with
     | [ |- context[ap object_of (ap ?f ?p)] ]
@@ -200,3 +200,4 @@ Ltac push_ap_object_of' :=
          refine (transport P (ap_compose' object_of (fun F' x => f (F' x)) p)^ _)
   end.
 Ltac push_ap_object_of := repeat push_ap_object_of'.
+*)

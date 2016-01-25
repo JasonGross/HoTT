@@ -1,6 +1,8 @@
 -R theories HoTT
 COQC = hoqc
 
+theories/bug_csu_slow_tc_01.v
+
 theories/Basics/Notations.v
 theories/Basics/Overture.v
 theories/Basics/UniverseLevel.v

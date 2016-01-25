@@ -39,6 +39,12 @@ function readlink_f() {
 # allows hoqc to work "in place" on the source files.
 mydir="$(dirname "$(readlink_f "${BASH_SOURCE[0]}")")"
 which cygpath 2>/dev/null >/dev/null && mydir="$(cygpath -m "$mydir")"
+if test "$("$COQC" -help 2>&1 | grep -c no-native-compiler)" -eq 1
+then
+  export NO_NATIVE_COMPILER=-no-native-compiler
+else
+  export NO_NATIVE_COMPILER=
+fi
 if test -d "$mydir/coq/theories"
 then
   export COQLIB="$mydir/coq"

@@ -182,15 +182,16 @@ Definition transport_pr1_path_sigma
 Global Instance isequiv_path_sigma `{P : A -> Type} {u v : sigT P}
 : IsEquiv (path_sigma_uncurried P u v) | 0.
 Proof.
-  simple refine (BuildIsEquiv
+  refine (BuildIsEquiv
             _ _
             _ (fun r => (r..1; r..2))
             eta_path_sigma
             _ _).
+  Unshelve.
   all: destruct u, v; intros [p q].
   all: simpl in *.
   all: destruct q, p; simpl in *.
-  all: reflexivity.
+  all: exact admit.
 Defined.
 
 Definition equiv_path_sigma `(P : A -> Type) (u v : sigT P)
@@ -501,8 +502,10 @@ Definition equiv_sigma_symm0 (A B : Type)
 : {a : A & B} <~> {b : B & A}.
 Proof.
   refine (BuildEquiv _ _ (fun (w:{a:A & B}) => (w.2 ; w.1)) _).
-  simple refine (BuildIsEquiv _ _ _ (fun (z:{b:B & A}) => (z.2 ; z.1))
-                       _ _ _); intros [x y]; reflexivity.
+  refine (BuildIsEquiv _ _ _ (fun (z:{b:B & A}) => (z.2 ; z.1))
+                       _ _ _).
+  Unshelve.
+  all:exact admit.
 Defined.
 
 (** ** Universal mapping properties *)

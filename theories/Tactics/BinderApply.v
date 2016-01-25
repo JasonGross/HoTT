@@ -3,7 +3,7 @@
 (** * Apply a lemma under binders *)
 Require Import Basics.Overture Tactics.EvalIn.
 (** There are some cases where [apply lem] will fail, but [intros; apply lem] will succeed.  The tactic [binder apply] is like [intros; apply lem], but it cleans up after itself by [revert]ing the things it introduced.  The tactic [binder apply lem in H] is to [binder apply lem], as [apply lem in H] is to [apply lem].  Note, however, that the implementation of [binder apply lem in H] is completely different and significantly more complicated. *)
-
+(*
 Ltac can_binder_apply apply_tac fail1_tac :=
   first [ test apply_tac
         | test (intro; can_binder_apply apply_tac fail1_tac)
@@ -125,3 +125,4 @@ Funext . Extended goal with context:
 Abort.
 
 (** N.B. [constrbinder apply] is like [binder apply], except that it constructs a new term and returns it, rather than applying a lemma in-place to a hypothesis.  It's primarily useful as plumbing for higher-level tactics. *)
+*)

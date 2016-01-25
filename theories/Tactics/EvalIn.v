@@ -2,7 +2,7 @@
 
 (** * Evaluating tactics on terms *)
 Require Import Basics.Overture Basics.PathGroupoids.
-
+(*
 (** It sometimes happens, in the course of writing a tactic, that we have some term in an Ltac variable (more precisely, we have what Ltac calls a "constr") and we would like to act on it with some tactic such as [cbv] or [rewrite].  Ordinarily, such tactics only act on the current *goal*, and generally they have a version such as [rewrite ... in ...] which acts on something in the current *context*, but neither of these is the same as acting on a term held in an Ltac variable.
 
 For some tactics, such as [cbv] and [pattern], we can write [eval TAC in H], where [H] is the term in question; this form *returns* the modified term so we can place it in another Ltac variable.  However, other tactics such as [rewrite] do not support this syntax.  (There is a feature request for it at https://coq.inria.fr/bugs/show_bug.cgi?id=3677.)
@@ -80,3 +80,4 @@ Proof.
   (** Show Proof. *)
   (** ==> (fun (A B : Type) (x : A) (f : A -> B) => 1) *)
 Abort.
+*)

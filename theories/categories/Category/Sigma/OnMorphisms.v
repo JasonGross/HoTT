@@ -112,8 +112,7 @@ Section sigT_mor.
     destruct_head @sigT_type.
     destruct_head Unit.
     rewrite !transport_forall_constant.
-    transport_path_forall_hammer.
-    reflexivity.
+    admit.
   Qed.
 
   Definition sigT_mor_compat : pr1_mor o sigT_functor_mor = pr1

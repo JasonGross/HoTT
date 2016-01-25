@@ -216,7 +216,7 @@ strict: strict-test strict-no-axiom hottlib hott-core hott-categories contrib
 # A rule for compiling the HoTT libary files
 $(MAIN_VFILES:.v=.vo) : %.vo : %.v $(STD_VOFILES) coq-HoTT
 	$(VECHO) HOQC $*
-	$(Q) $(TIMER) ./etc/pipe_out.sh "$*.timing" $(HOQC) -time $<
+	$(Q) $(TIMER) $(HOQC) $<
 
 $(MAIN_VFILES:.v=.vi) : %.vi : %.v $(STD_VOFILES) coq-HoTT
 	$(VECHO) HOQC -quick $*
