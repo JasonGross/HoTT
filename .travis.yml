@@ -61,7 +61,6 @@ matrix:
   allow_failures:
     - env: UPDATE_HTML=""       WITH_AUTORECONF=""     UPDATE_QUICK_DOC=""     UPDATE_AUTOGEN=""     UPDATE_DEP_GRAPHS=""    BUILD_COQ=""     UPDATE_OPAM=""       FORCE_COQ_VERSION=""      VALIDATE="yes"
     - env: UPDATE_HTML=""       WITH_AUTORECONF="yes"  UPDATE_QUICK_DOC=""     UPDATE_AUTOGEN=""     UPDATE_DEP_GRAPHS=""    BUILD_COQ="yes"  UPDATE_OPAM=""       FORCE_COQ_VERSION="v8.6"  VALIDATE=""
-    - env: UPDATE_HTML=""       WITH_AUTORECONF="yes"  UPDATE_QUICK_DOC=""     UPDATE_AUTOGEN=""     UPDATE_DEP_GRAPHS=""    BUILD_COQ="yes"  UPDATE_OPAM=""       FORCE_COQ_VERSION="trunk" VALIDATE=""
 
 
 
