@@ -462,7 +462,7 @@ Arguments center A {_}.
    Next, 0-truncated means "the space of paths between any two points is a sub-singleton". Thus, two points might not have any paths between them, or they have a unique path. Such a space may have many points but it is discrete in the sense that all paths are trivial. We call such spaces "sets".
 *)
 
-Inductive trunc_index : Type :=
+Monomorphic Inductive trunc_index : Type :=
 | minus_two : trunc_index
 | trunc_S : trunc_index -> trunc_index.
 
@@ -476,8 +476,7 @@ Definition trunc_index_rect := trunc_index_ind.
 Bind Scope trunc_scope with trunc_index.
 Arguments trunc_S _%trunc_scope.
 
-(** Include the basic numerals, so we don't need to go through the coercion from [nat], and so that we get the right binding with [trunc_scope]. *)
-(** Note that putting the negative numbers at level 0 allows us to override the [- _] notation for negative numbers. *)
+(** Include a numeral notation. *)
 Notation "n .+1" := (trunc_S n) : trunc_scope.
 Notation "n .+1" := (S n) : nat_scope.
 Notation "n .+2" := (n.+1.+1)%trunc : trunc_scope.
@@ -489,19 +488,40 @@ Notation "n .+4" := (n.+1.+3)%nat   : nat_scope.
 Notation "n .+5" := (n.+1.+4)%trunc : trunc_scope.
 Notation "n .+5" := (n.+1.+4)%nat   : nat_scope.
 Local Open Scope trunc_scope.
-Notation "-2" := minus_two (at level 0) : trunc_scope.
-Notation "-1" := (-2.+1) (at level 0) : trunc_scope.
-Notation "0" := (-1.+1) : trunc_scope.
-Notation "1" := (0.+1) : trunc_scope.
-Notation "2" := (1.+1) : trunc_scope.
 
 Fixpoint nat_to_trunc_index (n : nat) : trunc_index
   := match n with
-       | 0%nat => 0
+       | 0%nat => minus_two.+2
        | S n' => (nat_to_trunc_index n').+1
+     end.
+Fixpoint trunc_index_to_succ_succ_nat (n : trunc_index) : nat
+  := match n with
+     | minus_two => 0
+     | trunc_S n' => S (trunc_index_to_succ_succ_nat n')
      end.
 
 Coercion nat_to_trunc_index : nat >-> trunc_index.
+
+Import Decimal.
+
+Definition int_to_trunc_index (n : Decimal.int) : option trunc_index
+  := match n with
+     | -2 => Some minus_two
+     | -1 => Some minus_two.+1
+     | Neg 0 => Some minus_two.+2
+     | Pos n => @Some trunc_index (Nat.of_uint n)
+     | Neg _ => None
+     end%int.
+
+Definition trunc_index_to_int (n : trunc_index) : Decimal.int
+  := match trunc_index_to_succ_succ_nat n with
+     | 0%nat => (-2)%int
+     | 1%nat => (-1)%int
+     | 2%nat => 0%int
+     | S (S n') => Pos (Nat.to_uint n')
+     end.
+
+Numeral Notation trunc_index int_to_trunc_index trunc_index_to_int : trunc_scope (abstract after 5000).
 
 Fixpoint IsTrunc_internal (n : trunc_index) (A : Type) : Type :=
   match n with
