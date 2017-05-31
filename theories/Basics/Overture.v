@@ -504,7 +504,7 @@ Coercion nat_to_trunc_index : nat >-> trunc_index.
 
 Import Decimal.
 
-Definition int_to_trunc_index (n : Decimal.int) : option trunc_index
+Monomorphic Definition int_to_trunc_index (n : Decimal.int) : option trunc_index
   := match n with
      | -2 => Some minus_two
      | -1 => Some minus_two.+1
@@ -513,7 +513,7 @@ Definition int_to_trunc_index (n : Decimal.int) : option trunc_index
      | Neg _ => None
      end%int.
 
-Definition trunc_index_to_int (n : trunc_index) : Decimal.int
+Monomorphic Definition trunc_index_to_int (n : trunc_index) : Decimal.int
   := match trunc_index_to_succ_succ_nat n with
      | 0%nat => (-2)%int
      | 1%nat => (-1)%int
