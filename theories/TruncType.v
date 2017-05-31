@@ -57,7 +57,7 @@ Proof.
 Defined.
 
 Definition path_hset {A B} := @path_trunctype 0 A B.
-Definition path_hprop {A B} := @path_trunctype -1 A B.
+Definition path_hprop {A B} := @path_trunctype (-1) A B.
 
 Global Instance istrunc_trunctype {n : trunc_index}
   : IsTrunc n.+1 (TruncType n) | 0.

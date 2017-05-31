@@ -489,12 +489,12 @@ Notation "n .+5" := (n.+1.+4)%trunc : trunc_scope.
 Notation "n .+5" := (n.+1.+4)%nat   : nat_scope.
 Local Open Scope trunc_scope.
 
-Fixpoint nat_to_trunc_index (n : nat) : trunc_index
+Monomorphic Fixpoint nat_to_trunc_index (n : nat) : trunc_index
   := match n with
        | 0%nat => minus_two.+2
        | S n' => (nat_to_trunc_index n').+1
      end.
-Fixpoint trunc_index_to_succ_succ_nat (n : trunc_index) : nat
+Monomorphic Fixpoint trunc_index_to_succ_succ_nat (n : trunc_index) : nat
   := match n with
      | minus_two => 0
      | trunc_S n' => S (trunc_index_to_succ_succ_nat n')
@@ -565,8 +565,8 @@ progress match goal with
              => change (forall (a : A) (b : B a) (c : C a b) (d : D a b c), IsTrunc n.+1 (T a b c d)) in H; cbv beta in H
          end.
 
-Notation Contr := (IsTrunc -2).
-Notation IsHProp := (IsTrunc -1).
+Notation Contr := (IsTrunc (-2)).
+Notation IsHProp := (IsTrunc (-1)).
 Notation IsHSet := (IsTrunc 0).
 
 Hint Extern 0 => progress change Contr_internal with Contr in * : typeclass_instances.

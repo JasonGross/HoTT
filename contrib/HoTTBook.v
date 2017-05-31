@@ -382,7 +382,7 @@ Definition Book_3_1_9 := @HoTT.Types.Universe.not_hset_Type.
 (* ================================================== defn:isprop *)
 (** Definition 3.3.1 *)
 
-Definition Book_3_3_1 := @HoTT.Basics.Overture.IsTrunc -1.
+Definition Book_3_3_1 := @HoTT.Basics.Overture.IsTrunc (-1).
 
 (* ================================================== thm:inhabprop-eqvunit *)
 (** Lemma 3.3.2 *)
@@ -397,7 +397,7 @@ Definition Book_3_3_3 := @HoTT.Basics.Trunc.equiv_iff_hprop.
 (* ================================================== thm:prop-set *)
 (** Lemma 3.3.4 *)
 
-Definition Book_3_3_4 := @HoTT.Basics.Trunc.trunc_succ -1.
+Definition Book_3_3_4 := @HoTT.Basics.Trunc.trunc_succ (-1).
 
 (* ================================================== thm:isprop-isset *)
 (** Lemma 3.3.5 *)
@@ -432,7 +432,7 @@ Definition Book_3_5_1 := @HoTT.Types.Sigma.path_sigma_hprop.
 (** Example 3.6.2 *)
 
 Definition Book_3_6_2 `{Funext} (A : Type) (B : A -> Type)
-  := @HoTT.Types.Forall.trunc_forall _ A B -1.
+  := @HoTT.Types.Forall.trunc_forall _ A B (-1).
 
 (* ================================================== defn:logical-notation *)
 (** Definition 3.7.1 *)
@@ -451,8 +451,7 @@ Definition Book_3_6_2 `{Funext} (A : Type) (B : A -> Type)
 
 (* ================================================== (unnamed) *)
 (** Lemma 3.9.1 *)
-
-Definition Book_3_9_1 := @HoTT.HIT.Truncations.TrM.RSU.isequiv_to_O_inO -1.
+Definition Book_3_9_1 := @HoTT.HIT.Truncations.TrM.RSU.isequiv_to_O_inO (-1).
 
 (* ================================================== cor:UC *)
 (** Corollary 3.9.2 *)
@@ -462,7 +461,7 @@ Definition Book_3_9_2 := @HoTT.HIT.unique_choice.unique_choice.
 (* ================================================== defn:contractible *)
 (** Definition 3.11.1 *)
 
-Definition Book_3_11_1 := @HoTT.Basics.Overture.IsTrunc -2.
+Definition Book_3_11_1 := @HoTT.Basics.Overture.IsTrunc (-2).
 
 (* ================================================== thm:contr-unit *)
 (** Lemma 3.11.3 *)
@@ -491,7 +490,7 @@ Definition Book_3_11_6 := @HoTT.Types.Forall.trunc_forall.
 (** Lemma 3.11.7 *)
 
 Definition Book_3_11_7a := @HoTT.Idempotents.contr_retracttype.
-Definition Book_3_11_7 := @HoTT.HIT.Truncations.TrM.RSU.inO_to_O_retract -2.
+Definition Book_3_11_7 := @HoTT.HIT.Truncations.TrM.RSU.inO_to_O_retract (-2).
 
 (* ================================================== thm:contr-paths *)
 (** Lemma 3.11.8 *)
@@ -614,7 +613,7 @@ Definition Book_4_3_3  := @HoTT.EquivalenceVarieties.equiv_biinv_isequiv.
 (* ================================================== defn:equivalence *)
 (** Definition 4.4.1 *)
 
-Definition Book_4_4_1 := @HoTT.Basics.Trunc.IsTruncMap -2.
+Definition Book_4_4_1 := @HoTT.Basics.Trunc.IsTruncMap (-2).
 
 (* ================================================== thm:lequiv-contr-hae *)
 (** Theorem 4.4.3 *)
@@ -639,7 +638,7 @@ Definition Book_4_3_6 := @HoTT.EquivalenceVarieties.isequiv_inhab_codomain.
 (* ================================================== (unnamed) *)
 (** Definition 4.6.1 *)
 
-Definition Book_4_6_1 := @HoTT.Basics.Trunc.IsTruncMap -1.
+Definition Book_4_6_1 := @HoTT.Basics.Trunc.IsTruncMap (-1).
 
 (* ================================================== thm:mono-surj-equiv *)
 (** Theorem 4.6.3 *)

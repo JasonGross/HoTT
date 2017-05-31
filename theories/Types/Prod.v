@@ -365,7 +365,7 @@ Proof.
 Defined.
 
 Global Instance contr_prod `{CA : Contr A} `{CB : Contr B} : Contr (A * B) | 100
-  := @trunc_prod -2 A CA B CB.
+  := @trunc_prod (-2) A CA B CB.
 
 (** ** Decidability *)
 

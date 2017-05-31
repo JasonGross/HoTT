@@ -54,11 +54,13 @@ Definition Trunc_rec {n A X} `{IsTrunc n X}
 
 These may seem like contradictory requirements, but it appears to be possible to satisfy them because coercions don't unfold definitions.  Thus, rather than a record wrapper, we define a *definitional* wrapper [Truncation_Modality] around [trunc_index], and a notation [Tr] for the identity.  We will define [Truncation_Modalities.Modality] to be [Truncation_Modality] and declare the identity as a coercion; thus a [Truncation_Modality] can be used as a modality and therefore also as a function (via the [O_reflector] coercion).  However, the identity from [trunc_index] to [Truncation_Modality] is not a coercion, so we don't get notation like [2 X]. *)
 Definition Truncation_Modality := trunc_index.
+Bind Scope trunc_scope with Truncation_Modality.
 Definition Tr : trunc_index -> Truncation_Modality := idmap.
 
 Module Truncation_Modalities <: Modalities.
 
   Definition Modality : Type2@{u a} := Truncation_Modality.
+  Bind Scope trunc_scope with Modality.
 
   Definition O_reflector (n : Modality@{u u'}) A := Trunc n A.
 
@@ -109,6 +111,7 @@ End Truncation_Modalities.
 
 (** If you import the following module [TrM], then you can call all the modality functions with a [trunc_index] as the modality parameter, since we defined [Truncation_Modalities.Modality] to be [trunc_index]. *)
 Module Import TrM := Modalities_Theory Truncation_Modalities.
+Bind Scope trunc_scope with TrM.Os_ReflectiveSubuniverses.ReflectiveSubuniverse.
 (** If you don't import it, then you'll need to write [TrM.function_name] or [TrM.RSU.function_name] depending on whether [function_name] pertains only to modalities or also to reflective subuniverses.  (Having to know this is a bit unfortunate, but apparently the fact that [TrM] [Export]s reflective subuniverses still doesn't make the fields of the latter accessible as [TrM.field].) *)
 Export TrM.Coercions.
 Export TrM.RSU.Coercions.
@@ -213,7 +216,7 @@ Local Open Scope trunc_scope.
 
 (** We define [merely A] to be an inhabitant of the universe [hProp] of hprops, rather than a type.  We can always treat it as a type because there is a coercion, but this means that if we need an element of [hProp] then we don't need a separate name for it. *)
 
-Definition merely (A : Type@{i}) : hProp@{i} := BuildhProp (Trunc -1 A).
+Definition merely (A : Type@{i}) : hProp@{i} := BuildhProp (Trunc (-1) A).
 
 (** Note that we define [merely] using [Trunc -1] rather than [Tr -1].  These are of course judgmentally equal, but our choice introduces fewer universe parameters, resulting in faster compilation times.  The other choice might in theory give Coq an easier time applying general modality theorems to [merely], but currently things seem to be transparent enough that it doesn't matter. *)
 
@@ -221,16 +224,16 @@ Definition hexists {X} (P : X -> Type) : hProp := merely (sigT P).
 
 Definition hor (P Q : Type) : hProp := merely (P + Q).
 
-Definition himage {X Y} (f : X -> Y) := image -1 f.
+Definition himage {X Y} (f : X -> Y) := image (-1) f.
 
 Definition contr_inhab_prop {A} `{IsHProp A} (ma : merely A) : Contr A.
 Proof.
-  refine (@contr_trunc_conn -1 A _ _); try assumption.
+  refine (@contr_trunc_conn (-1) A _ _); try assumption.
   refine (contr_inhabited_hprop _ ma).
 Defined.
 
 (** Surjections are the (-1)-connected maps, but they can be characterized more simply since an inhabited hprop is automatically contractible. *)
-Notation IsSurjection := (IsConnMap -1).
+Notation IsSurjection := (IsConnMap (-1)).
 
 Definition BuildIsSurjection {A B} (f : A -> B) :
   (forall b, merely (hfiber f b)) -> IsSurjection f.
@@ -243,7 +246,7 @@ Definition isequiv_surj_emb {A B} (f : A -> B)
            `{IsSurjection f} `{IsEmbedding f}
 : IsEquiv f.
 Proof.
-  apply (@isequiv_conn_ino_map -1); assumption.
+  apply (@isequiv_conn_ino_map (-1)); assumption.
 Defined.
 
 (** ** Tactic to remove truncations in hypotheses if possible. *)

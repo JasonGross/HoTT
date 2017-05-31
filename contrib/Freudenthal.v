@@ -112,7 +112,7 @@ Proof.
     (fun x => IsEquiv (FST_Codes_cross x q))).
     intros x; generalize dependent n. intros [ | n'] imposs.
       destruct (imposs 1).
-      intros ?. apply (@trunc_leq -1). exact tt. apply hprop_isequiv.
+      intros ?. apply (@trunc_leq (-1)). exact tt. apply hprop_isequiv.
   intros []. unfold FST_Codes_cross.
   refine (isequiv_homotopic (FST_Codes_cross_x0 q) _).
   { unfold FST_Codes_cross_x0.
