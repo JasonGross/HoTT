@@ -22,7 +22,7 @@ Local Unset Elimination Schemes.
 
 (** [option A] is the extension of [A] with an extra element [None] *)
 
-Inductive option (A : Type) : Type :=
+Monomorphic Inductive option (A : Type) : Type :=
   | Some : A -> option A
   | None : option A.
 
