@@ -29,6 +29,7 @@ Local Open Scope identity_scope.
 Require Import Logic_Type.
 
 Open Scope nat_scope.
+Local Notation "0" := O.
 
 Definition eq_S := f_equal S.
 
@@ -133,7 +134,7 @@ where "n * m" := (mult n m) : nat_scope.
 
 Hint Resolve (f_equal2 mult): core.
 
-Lemma mult_n_O : forall n:nat, 0 = n * 0.
+Lemma mult_n_O : forall n:nat, O = n * O.
 Proof.
   induction n; simpl; auto.
 Qed.
@@ -207,7 +208,7 @@ Qed.
 (** Case analysis *)
 
 Theorem nat_case :
- forall (n:nat) (P:nat -> Type), P 0 -> (forall m:nat, P (S m)) -> P n.
+ forall (n:nat) (P:nat -> Type), P O -> (forall m:nat, P (S m)) -> P n.
 Proof.
   induction n; auto.
 Qed.
@@ -216,8 +217,8 @@ Qed.
 
 Theorem nat_double_ind :
  forall R:nat -> nat -> Type,
-   (forall n:nat, R 0 n) ->
-   (forall n:nat, R (S n) 0) ->
+   (forall n:nat, R O n) ->
+   (forall n:nat, R (S n) O) ->
    (forall n m:nat, R n m -> R (S n) (S m)) -> forall n m:nat, R n m.
 Proof.
   induction n; auto.
@@ -235,8 +236,8 @@ Fixpoint max n m : nat :=
 
 Fixpoint min n m : nat :=
   match n, m with
-    | O, _ => 0
-    | S n', O => 0
+    | O, _ => O
+    | S n', O => O
     | S n', S m' => S (min n' m')
   end.
 

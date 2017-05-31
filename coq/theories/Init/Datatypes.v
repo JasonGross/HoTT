@@ -13,7 +13,6 @@
 Set Implicit Arguments.
 
 Require Import Logic.
-Declare ML Module "nat_syntax_plugin".
 
 Global Set Universe Polymorphism.
 Global Set Asymmetric Patterns.
@@ -79,7 +78,7 @@ Notation "A <-> B" := (iff A B) : type_scope.
 
 (* Natural numbers. *)
 
-Inductive nat : Type :=
+Monomorphic Inductive nat : Type :=
   | O : nat
   | S : nat -> nat.
 
