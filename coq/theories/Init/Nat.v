@@ -9,6 +9,7 @@
 Require Import Notations Logic Datatypes.
 Require Decimal.
 Local Open Scope nat_scope.
+Local Unset Universe Polymorphism.
 
 (**********************************************************************)
 (** * Peano natural numbers, definitions of operations *)
